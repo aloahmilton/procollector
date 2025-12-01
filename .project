@@ -1,6 +1,0 @@
-name = Busca y recopila proyectos
-tag = go, vscode
-; disabled = true
-
-[/nombre-carpeta-padre]
-name = El mismo proyecto con otro nombre
