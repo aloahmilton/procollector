@@ -1,263 +1,223 @@
-Here is a **clean, professional, investor-ready & developer-ready README.md** for your project.
-You can paste this directly into your **docs/README.md**.
+# ProCollector
 
----
+**Enterprise Collection & Client Management System**
 
-# 🟩 **ProCollector — Unified Banking Collection & Revenue Tracking System**
+A cloud-powered suite designed for banks, financial institutions, microfinance companies, and enterprise collectors to transparently manage daily client deposits, field collections, and multi-branch reporting.
 
-*A multi-tenant, role-based financial collection platform for banks, collectors, and customers.*
+## 🎯 Overview
 
----
+ProCollector is a comprehensive multi-tenant platform consisting of:
 
-## 📌 **Overview**
+- **Web Portal** (Next.js) - Unified interface for all user roles
+- **Mobile Apps** (React Native/Expo) - Collector and Client applications
+- **Backend API** (NestJS) - RESTful APIs with authentication and business logic
+- **Database** (Supabase PostgreSQL) - Secure data storage with Row-Level Security
 
-ProCollector is a **bank-grade digital collection management system** designed for institutions that need real-time revenue tracking, collector monitoring, customer account management, and automated reporting.
-
-The platform provides:
-
-* A **web dashboard (Next.js)** for banks, managers, and admins
-* **Mobile apps (React Native)** for collectors and customers
-* A **Node.js backend (Express/Nest)** connected to **Supabase (PostgreSQL)**
-* A multi-organization structure: each bank or enterprise gets its own workspace
-* Automatic updates for all subscribed organizations
-* Transparent, secure, and auditable financial tracking
-* Integrated modular payment gateways
-
----
-
-## 🎨 **Branding**
-
-We follow a unified brand design system:
-
-| Element         | Color             |
-| --------------- | ----------------- |
-| Header / Footer | **Dark Green**    |
-| Background      | **Dust Gold**     |
-| Core Neutrals   | **White & Black** |
-
-These colors are consistent across **web**, **mobile**, and **emails**.
-
----
-
-## 🔐 **User Types**
-
-The system supports **3 main roles**:
-
-### 🟢 **1. Bank Manager (Admin Manager)**
-
-* Creates administrators for their branch
-* Creates employees
-* Activates/deactivates users
-* Assigns collectors
-* Manages organizational settings
-
-### 🔵 **2. Employee / Collector**
-
-* Creates customer accounts
-* Collects daily payments
-* Updates customer transactions in real-time
-* Uses the mobile app for field operations
-
-### 🟡 **3. Customer**
-
-* Logs in to view daily payments
-* Receives receipts instantly
-* Tracks contributions and balances
-* Issues complaints or requests
-
----
-
-## 🏗️ **Project Structure**
-
-# Not a must to use this
-ProCollector/
-│
-├── web/                 # Next.js web app (admin, manager, customer portals)
-├── app/                 # React Native apps (collector + customer)
-├── backend/             # Node.js API + Supabase integration
-├── payments/            # Modular payment gateways (Campay, Flutterwave, etc.)
-│    ├── campay/
-│    ├── flutterwave/
-│    └── mock/
-│
-├── shared/              # Shared logic, utils, validation schemas
-├── docs/                # Architecture, API docs, workflows
-└── dev-plan/            # AI agent instructions + build tasks
-```
-
----
-
-## 🧩 **Key Modules**
-
-### **Core**
-
-* Authentication (Email + OTP)
-* Multi-tenant workspace system
-* Admin console
-* Organization manager console
-* Collector console
-* Customer portal
-* Real-time transactions
-* Reporting engine
-
-### **Financial**
-
-* Deposit tracking
-* Collector-to-bank reconciliation
-* Automatic charges
-* Daily, weekly & monthly reports
-* Financial audit trail
-
-### **Automation**
-
-* Email notifications via SMTP
-* Optional premium mail provider (SendGrid/Mailgun) if admin enables
-* Auto-updates pushed to all subscribers
-
-### **Payments**
-
-Modular gateways:
-
-* Campay
-* Flutterwave
-* MTN/Orange Mobile Money (optional)
-* Placeholder mock gateway for testing
-
----
-
-## 🔌 **Tech Stack**
-
-### **Frontend (Web):**
-
-* **Next.js**
-* React 18
-* TailwindCSS
-
-### **Mobile (Apps):**
-
-* **React Native**
-* Expo or bare workflow
-
-### **Backend:**
-
-* Node.js (Express or NestJS)
-* Supabase (PostgreSQL + Auth + Edge Functions)
-
-### **Hosting:**
-
-* Domain + hosting (e.g., Namecheap)
-* Backend on Supabase + lightweight cloud VM
-* Web deployed on your hosting
-
-### **Security:**
-
-* JWT Auth
-* Role-based access
-* HTTPS enforced
-* Data isolation per organization
-
----
-
-## 🧱 **Features Summary**
-
-### **1. Organization-Onboarding**
-
-* If a business contacts sales → admin approves → system automatically creates:
-
-  * Workspace
-  * Database schema
-  * Subdomain (optional)
-
-### **2. Real-Time Field Data**
-
-* Admin dashboard shows everything happening live
-* Collector actions appear instantly
-* All data is synced across apps and portals
-
-### **3. Reporting**
-
-* Daily, Weekly, Monthly
-* PDF generation coming soon
-* Exportable CSV
-
-### **4. Update Propagation**
-
-When system core updates →
-**All subscribed organizations automatically receive updates**
-
-### **5. Access Separation**
-
-* Each organization sees only its data
-* No cross-contamination
-* Multi-tenant safe design
-
----
-
-## 📡 **API + ERD**
-
-The API definitions and ERD diagrams will live in:
+## 🏗️ Architecture
 
 ```
-docs/api/
-docs/erd/
+procollector/
+├── backend/          # NestJS API server
+├── web/              # Next.js web application
+├── app/              # React Native/Expo mobile app
+├── shared/           # Shared types and utilities
+├── docs/             # Documentation
+└── env/              # Environment configuration
 ```
 
----
+## 🎨 Design System
 
-## 🚀 **Development Workflow**
+### Brand Colors
+- **Primary (Dark Green)**: `#2E8B57` - Headers, sidebar, key UI elements
+- **Secondary (Dust Gold)**: `#F4C430` - Backgrounds, accents, cards
+- **Background**: White for content areas
+- **Text**: Black for typography
 
-AI agents use instructions located in:
+### Features
+- Clean, modern interface
+- Responsive design
+- Dark mode support
+- Consistent component library
 
+## 👥 User Roles
+
+1. **Super Admin** - Platform owner, manages all organizations
+2. **Bank Manager** - Organization admin, full access to their org
+3. **Sub-Admin** - Limited administrative access
+4. **Collector** - Field workers recording deposits
+5. **Client** - End users viewing their deposits
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- PostgreSQL or Supabase account
+- Git
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd procollector
+   ```
+
+2. **Setup Environment Variables**
+   ```bash
+   cp env/.env.example backend/.env
+   # Edit backend/.env with your credentials
+   ```
+
+3. **Install Backend Dependencies**
+   ```bash
+   cd backend
+   npm install
+   npm run start:dev
+   ```
+
+4. **Install Web Dependencies**
+   ```bash
+   cd web
+   npm install
+   npm run dev
+   ```
+
+5. **Install Mobile App Dependencies**
+   ```bash
+   cd app
+   npm install
+   npm start
+   ```
+
+## 📚 Documentation
+
+- [System Architecture](docs/architecture.md)
+- [Entity Relationship Diagram](docs/erd.md)
+- [API Specifications](docs/api-specs.md)
+- [Development Plan](docs/ai-agent-dev-plan.md)
+- [Project Status](docs/PROJECT_STATUS.md)
+
+## 🔑 Key Features
+
+### Multi-Tenancy
+- Organization-based data isolation
+- Automatic subdomain generation
+- Custom branding per organization
+
+### Security
+- JWT authentication
+- Password hashing with bcrypt
+- Row-Level Security (RLS)
+- CORS and Helmet.js protection
+
+### Payment Integration
+- Modular payment gateway system
+- Support for Flutterwave, Campay, CoinPayments
+- Webhook handling
+
+### Offline Sync
+- Mobile app works offline
+- Automatic synchronization when online
+- Conflict resolution
+
+### Reporting
+- Daily, weekly, monthly reports
+- Export to PDF/Excel
+- Real-time analytics
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Framework**: NestJS
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: TypeORM
+- **Authentication**: JWT, Passport
+- **Validation**: class-validator
+- **Documentation**: Swagger/OpenAPI
+
+### Web Frontend
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Icons**: Lucide React
+
+### Mobile
+- **Framework**: React Native
+- **Platform**: Expo
+- **Language**: TypeScript
+- **Storage**: AsyncStorage/SQLite
+
+## 📡 API Endpoints
+
+Base URL: `http://localhost:3001/api/v1`
+
+### Authentication
+- `POST /auth/login` - User login
+- `POST /auth/register` - Register organization
+- `POST /auth/refresh-token` - Refresh access token
+
+### Organizations
+- `GET /organizations` - List all organizations (Super Admin)
+- `GET /organizations/me` - Get current organization
+- `PATCH /organizations/me/branding` - Update branding
+
+### Users
+- `GET /users` - List users
+- `POST /users` - Create user
+- `GET /users/:id` - Get user details
+
+### Clients
+- `GET /clients` - List clients
+- `POST /clients` - Create client
+- `GET /clients/:id` - Get client details
+
+### Deposits
+- `POST /deposits` - Record deposit
+- `GET /deposits` - List deposits
+- `GET /deposits/stats` - Get statistics
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
 ```
-dev-plan/
+
+## 🚢 Deployment
+
+### Docker
+```bash
+docker-compose up -d
 ```
 
-This folder includes:
+### Manual Deployment
+1. Build the backend: `cd backend && npm run build`
+2. Build the web app: `cd web && npm run build`
+3. Deploy to your hosting provider
 
-* Naming rules
-* Folder structure rules
-* Dependencies list
-* API contract
-* Database schema
-* Required modules
+## 🤝 Contributing
 
-So every agent builds consistently without duplicates.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
----
+## 📄 License
 
-## 🚧 **Status**
+This project is proprietary software. All rights reserved.
 
-🟢 Planning Complete
-🟢 Architecture Approved
-🟢 Documentation in progress
-🟡 Development starting
-⚪ Beta Testing
-⚪ Production Launch
+## 📞 Support
 
----
-
-## 🧑‍💼 **Team Notes**
-
-* The system is fully scalable
-* Designed for thousands of customers
-* Minimal cloud billing
-* Easy to maintain
-* New modules can be added without rewriting code
+For support, email support@procollector.net or open an issue in the repository.
 
 ---
 
-## ❓ Need Help?
-
-For architectural changes, module additions, or deeper documentation — just ask.
-
----
-
-If you want, I can also generate:
-
-✅ API Documentation
-✅ ERD Diagram
-✅ Developer onboarding manual
-✅ Setup instructions for each folder
-✅ Complete product manual
-
-Just say: **“Generate next section”**
+**Built with ❤️ for enterprise collection management**
