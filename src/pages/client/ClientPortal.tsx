@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { CreditCard, Download, AlertCircle } from 'lucide-react';
+import { CreditCard, Download, AlertCircle, PiggyBank } from 'lucide-react';
 
 type Payment = { id: string; amount: string; date: string; collector: string; status: 'Confirmed' | 'Pending'; method: string };
 
@@ -76,8 +76,8 @@ export function ClientPortal() {
                                     key={t.id}
                                     onClick={() => setTab(t.id as any)}
                                     className={`flex items-center gap-3 px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${tab === t.id
-                                            ? 'bg-brand-dark text-white shadow-xl translate-x-1'
-                                            : 'text-brand-dark/40 hover:text-brand-dark hover:bg-white/50'
+                                        ? 'bg-brand-dark text-white shadow-xl translate-x-1'
+                                        : 'text-brand-dark/40 hover:text-brand-dark hover:bg-white/50'
                                         }`}
                                 >
                                     {t.label}
