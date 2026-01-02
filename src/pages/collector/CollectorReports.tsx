@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Calendar } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 export default function CollectorReports() {
   const [dateRange, setDateRange] = useState('week');

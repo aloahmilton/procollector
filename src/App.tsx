@@ -29,15 +29,18 @@ import { Privacy } from './pages/public/Privacy';
 // Admin Portal Pages
 import { GlobalOverview } from './pages/admin/GlobalOverview';
 import { CSVImport } from './pages/admin/CSVImport';
-import { Organizations } from './pages/admin/Organizations';
+import Organizations from './pages/admin/Organizations';
 import { Collections } from './pages/admin/Collections';
 
 // Organization Admin Portal
 import { OrgAdminDashboard } from './pages/organization/OrgAdminDashboard';
 import { Reports } from './pages/organization/Reports';
+import { TransportModule } from './pages/organization/modules/TransportModule';
+import { HostelModule } from './pages/organization/modules/HostelModule';
+import { InventoryModule } from './pages/organization/modules/InventoryModule';
 
 // Collector Portal Pages
-import { FieldCollection } from './pages/collector/FieldCollection';
+import FieldCollection from './pages/collector/FieldCollection';
 import { DepositWithdrawal } from './pages/collector/DepositWithdrawal';
 
 // Client Portal Pages
@@ -47,16 +50,17 @@ import { ReceiptVerification } from './pages/client/ReceiptVerification';
 // Supervisor Portal Pages
 import { SupervisorPortal } from './pages/supervisor/SupervisorPortal';
 import { Agents } from './pages/supervisor/Agents';
+import LiveMonitoring from './pages/supervisor/LiveMonitoring';
 
 
 // Layout for the Protected App (Dashboard)
 function DashboardLayout() {
   return (
-    <div className="flex h-screen w-full bg-brand-dustGold font-sans text-brand-dark">
+    <div className="flex h-screen w-full bg-brand-light font-sans text-brand-dark">
       <Sidebar className="hidden lg:flex shrink-0 z-20" />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth bg-brand-dustGold">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth bg-brand-light">
           <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
@@ -113,11 +117,15 @@ function App() {
           <Route path="/demo-organization" element={<DemoAccessWrapper role="organization"><DashboardLayout /></DemoAccessWrapper>}>
             <Route index element={<ProtectedRoute requiredRole="organization"><OrgAdminDashboard /></ProtectedRoute>} />
             <Route path="reports" element={<ProtectedRoute requiredRole="organization"><Reports /></ProtectedRoute>} />
+            <Route path="transport" element={<ProtectedRoute requiredRole="organization"><TransportModule /></ProtectedRoute>} />
+            <Route path="hostel" element={<ProtectedRoute requiredRole="organization"><HostelModule /></ProtectedRoute>} />
+            <Route path="inventory" element={<ProtectedRoute requiredRole="organization"><InventoryModule /></ProtectedRoute>} />
           </Route>
 
           <Route path="/demo-supervisor" element={<DemoAccessWrapper role="supervisor"><DashboardLayout /></DemoAccessWrapper>}>
             <Route index element={<ProtectedRoute requiredRole="supervisor"><SupervisorPortal /></ProtectedRoute>} />
             <Route path="agents" element={<ProtectedRoute requiredRole="supervisor"><Agents /></ProtectedRoute>} />
+            <Route path="monitoring" element={<ProtectedRoute requiredRole="supervisor"><LiveMonitoring /></ProtectedRoute>} />
           </Route>
 
           <Route path="/demo-collector" element={<DemoAccessWrapper role="collector"><FieldCollection /></DemoAccessWrapper>} />
@@ -142,6 +150,9 @@ function App() {
           <Route path="/organization" element={<ProtectedRoute requiredRole="organization"><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<ProtectedRoute requiredRole="organization"><OrgAdminDashboard /></ProtectedRoute>} />
             <Route path="reports" element={<ProtectedRoute requiredRole="organization"><Reports /></ProtectedRoute>} />
+            <Route path="transport" element={<ProtectedRoute requiredRole="organization"><TransportModule /></ProtectedRoute>} />
+            <Route path="hostel" element={<ProtectedRoute requiredRole="organization"><HostelModule /></ProtectedRoute>} />
+            <Route path="inventory" element={<ProtectedRoute requiredRole="organization"><InventoryModule /></ProtectedRoute>} />
           </Route>
 
           {/* Collector Portal */}
@@ -166,6 +177,7 @@ function App() {
           <Route path="/supervisor" element={<ProtectedRoute requiredRole="supervisor"><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<ProtectedRoute requiredRole="supervisor"><SupervisorPortal /></ProtectedRoute>} />
             <Route path="agents" element={<ProtectedRoute requiredRole="supervisor"><Agents /></ProtectedRoute>} />
+            <Route path="monitoring" element={<ProtectedRoute requiredRole="supervisor"><LiveMonitoring /></ProtectedRoute>} />
           </Route>
         </Routes>
       </BrowserRouter>

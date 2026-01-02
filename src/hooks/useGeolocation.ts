@@ -1,46 +1,81 @@
 import { useState, useEffect } from 'react';
 
-interface GeolocationState {
-    latitude: number | null;
-    longitude: number | null;
-    error: string | null;
-    loading: boolean;
+interface GeolocationData {
+    latitude: number;
+    longitude: number;
+    accuracy: number;
+    timestamp: string;
 }
 
-export function useGeolocation() {
-    const [state, setState] = useState<GeolocationState>({
-        latitude: null,
-        longitude: null,
-        error: null,
-        loading: true,
-    });
+interface UseGeolocationReturn {
+    location: GeolocationData | null;
+    error: string | null;
+    isLoading: boolean;
+    captureLocation: () => Promise<GeolocationData>;
+}
 
-    useEffect(() => {
-        if (!navigator.geolocation) {
-            setState(prev => ({ ...prev, error: 'Geolocation not supported', loading: false }));
-            return;
-        }
+export function useGeolocation(): UseGeolocationReturn {
+    const [location, setLocation] = useState<GeolocationData | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-        const handleSuccess = (position: GeolocationPosition) => {
-            setState({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                error: null,
-                loading: false,
-            });
-        };
+    const captureLocation = (): Promise<GeolocationData> => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                const errorMsg = 'Geolocation is not supported by your browser';
+                setError(errorMsg);
+                reject(new Error(errorMsg));
+                return;
+            }
 
-        const handleError = (error: GeolocationPositionError) => {
-            setState(prev => ({ ...prev, error: error.message, loading: false }));
-        };
+            setIsLoading(true);
+            setError(null);
 
-        navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const locationData: GeolocationData = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    setLocation(locationData);
+                    setIsLoading(false);
+                    resolve(locationData);
+                },
+                (error) => {
+                    let errorMsg = 'Failed to get location';
+
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = 'Location permission denied. Please enable location access.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = 'Location request timed out.';
+                            break;
+                    }
+
+                    setError(errorMsg);
+                    setIsLoading(false);
+                    reject(new Error(errorMsg));
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
         });
+    };
 
-    }, []);
-
-    return state;
+    return {
+        location,
+        error,
+        isLoading,
+        captureLocation
+    };
 }

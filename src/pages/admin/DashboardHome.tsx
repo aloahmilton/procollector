@@ -20,12 +20,12 @@ export default function DashboardHome() {
       <h1 className="text-2xl font-bold mb-6">Dashboard Overview</h1>
       
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">{stat.label}</h3>
-            <p className="text-3xl font-bold text-blue-600">{stat.value}</p>
-            <div className={`text-sm ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+          <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
+            <h3 className="text-sm font-medium text-gray-600 mb-2">{stat.label}</h3>
+            <p className="text-xl font-bold text-gray-900">{stat.value}</p>
+            <div className={`text-xs ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
               {stat.change}
             </div>
           </div>
@@ -33,16 +33,16 @@ export default function DashboardHome() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-        <div className="space-y-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+        <div className="space-y-3">
           {recentActivity.map((activity) => (
-            <div key={activity.id} className="flex items-center justify-between border-b pb-4">
+            <div key={activity.id} className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div>
-                <p className="font-medium">{activity.action}</p>
-                <p className="text-sm text-gray-500">by {activity.user}</p>
+                <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                <p className="text-xs text-gray-500">by {activity.user}</p>
               </div>
-              <span className="text-sm text-gray-500">{activity.time}</span>
+              <span className="text-xs text-gray-500">{activity.time}</span>
             </div>
           ))}
         </div>

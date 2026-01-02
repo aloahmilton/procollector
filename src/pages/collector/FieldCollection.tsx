@@ -1,191 +1,353 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { MapPin, Camera, CheckCircle2, Loader2 } from 'lucide-react';
+import { MapPin, Camera, CheckCircle2, Loader2, Wifi, WifiOff, RefreshCcw, Users, DollarSign, ChevronRight, Search, ArrowLeft } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { offlineStorage, type PendingCollection } from '../../lib/offlineStorage';
+import { v4 as uuidv4 } from 'uuid';
 
-export function FieldCollection() {
-    const { latitude, longitude, loading: geoLoading } = useGeolocation();
+
+const API_URL = 'http://localhost:5000/api/v1';
+
+export default function FieldCollection() {
+    const [view, setView] = useState<'dashboard' | 'select-client' | 'enter-collection'>('dashboard');
+    const [selectedClient, setSelectedClient] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const [amount, setAmount] = useState('');
-    const [clientName, setClientName] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<'cash' | 'mobile_money'>('cash');
+    const [proofFile, setProofFile] = useState<File | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [pendingCount, setPendingCount] = useState(0);
+    const [isSyncing, setIsSyncing] = useState(false);
+    
+    const { location, isLoading: geoLoading, error: geoError, captureLocation } = useGeolocation();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
-            setSubmitting(false);
-            setSuccess(true);
-            setAmount('');
-            setClientName('');
-        }, 2000);
+    const [clients] = useState([
+        { id: '1', name: 'Boutique Alpha', quarter: 'Mokolo' },
+        { id: '2', name: 'Pharmacie De La Paix', quarter: 'Akwa' },
+        { id: '3', name: 'Gare Routière B', quarter: 'Ndokoti' },
+        { id: '4', name: 'Marché Central A', quarter: 'New Bell' },
+    ]);
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        refreshPendingCount();
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    const refreshPendingCount = async () => {
+        const count = await offlineStorage.getPendingCount();
+        setPendingCount(count);
     };
 
+    const handleSync = async () => {
+        if (!isOnline) return;
+        setIsSyncing(true);
+        try {
+            const pending = await offlineStorage.getPendingCollections();
+            for (const item of pending) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await offlineStorage.removeCollection(item.id);
+            }
+            await refreshPendingCount();
+        } catch (error) {
+            console.error("Sync failed:", error);
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
+    const handleCollectionSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+        try {
+            if (isOnline && !location) {
+                await captureLocation();
+            }
+
+            const collectionData: PendingCollection = {
+                id: uuidv4(),
+                clientId: selectedClient?.id || 'unknown',
+                description: `Collection from ${selectedClient?.name}`,
+                amount: parseFloat(amount),
+                paymentMethod,
+                collectedAt: new Date().toISOString(),
+                status: 'pending_sync',
+                ...(location ? { latitude: location.latitude, longitude: location.longitude } : {})
+            };
+
+            if (isOnline) {
+                try {
+                    const response = await fetch(`${API_URL}/collections`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(collectionData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log("Collection submitted successfully:", result);
+                } catch (error) {
+                    console.error("Failed to submit collection:", error);
+                    // Fall back to offline storage if API fails
+                    await offlineStorage.saveCollection(collectionData);
+                    await refreshPendingCount();
+                }
+            } else {
+                await offlineStorage.saveCollection(collectionData);
+                await refreshPendingCount();
+            }
+
+            setSuccessMessage(`Collected FCFA ${amount} from ${selectedClient?.name}`);
+            setSuccess(true);
+            setTimeout(() => {
+                setSuccess(false);
+                setAmount('');
+                setProofFile(null);
+                setSelectedClient(null);
+                setView('dashboard');
+            }, 3000);
+
+        } catch (error) {
+            console.error("Collection failed:", error);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const filteredClients = clients.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
     return (
-        <div className="min-h-screen bg-brand-dustGold/40 px-4 py-8 md:py-12 font-sans text-brand-dark selection:bg-brand-green/10">
-            <div className="max-w-md mx-auto space-y-8">
-                {/* Header with High-End Branding */}
-                <div className="flex items-center justify-between px-2">
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <div className="absolute -inset-1 bg-brand-green/20 rounded-2xl blur-sm"></div>
-                            <img src="/favicon.jpg" alt="Logo" className="relative h-12 w-12 rounded-xl shadow-2xl border border-white/50" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-dark/40 italic leading-none mb-1">PRO<span className="text-brand-green">COLLECTOR</span></p>
-                            <h3 className="font-black text-sm uppercase italic tracking-tighter">Jean Collector</h3>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-brand-dark/30 italic">Badge Verified</p>
-                        <p className="font-black text-[11px] text-brand-green bg-brand-green/10 px-2 py-0.5 rounded-full inline-block mt-1">#4421</p>
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
+            <header className="bg-white border-b border-gray-200 p-4 sticky top-0 z-10 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    {view !== 'dashboard' && (
+                        <button onClick={() => setView('dashboard')} className="p-2 -ml-2 rounded-full hover:bg-gray-100">
+                            <ArrowLeft className="h-6 w-6 text-gray-600" />
+                        </button>
+                    )}
+                    <div>
+                        <h1 className="font-bold text-lg text-gray-900 leading-tight">
+                            {view === 'dashboard' ? 'Record Collection' :
+                                view === 'select-client' ? 'Select Client' :
+                                    'Enter Collection'}
+                        </h1>
+                        <p className="text-xs text-gray-500">Welcome, Collector</p>
                     </div>
                 </div>
-
-                {/* Today's Stats - Premium Insight Card */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-brand-dark p-6 rounded-[2.5rem] shadow-premium text-white relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-green/10 rounded-full -mr-8 -mt-8 blur-2xl"></div>
-                        <div className="relative z-10">
-                            <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1 italic">Today</div>
-                            <div className="text-3xl font-black italic tracking-tighter text-brand-dustGold">8,400</div>
-                            <div className="text-[10px] font-black text-brand-green mt-2 uppercase">Verified</div>
-                        </div>
+                <div className="flex items-center gap-2">
+                    <div className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
+                        isOnline ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                    )}>
+                        {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+                        {isOnline ? 'Online' : 'Offline'}
                     </div>
-                    <div className="bg-white/60 backdrop-blur-sm p-6 rounded-[2.5rem] shadow-premium border border-white flex flex-col justify-between">
-                        <div>
-                            <div className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest mb-1 italic">Target</div>
-                            <div className="text-xl font-black text-brand-dark">15,000</div>
-                        </div>
-                        <div className="w-full bg-brand-dustGold/30 h-1.5 rounded-full mt-2">
-                            <div className="bg-brand-green h-full w-[56%] rounded-full shadow-[0_0_8px_rgba(46,204,113,0.4)] transition-all duration-1000"></div>
-                        </div>
+                    <div className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide",
+                        geoLoading ? "bg-amber-100 text-amber-700" : location ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                    )}>
+                        <MapPin className="h-3 w-3" />
+                        {geoLoading ? 'Locating...' : location ? 'Location OK' : geoError ? 'GPS Error' : 'No GPS'}
                     </div>
                 </div>
+            </header>
 
-                {success ? (
-                    <Card className="border-none bg-white rounded-[3rem] shadow-premium animate-in zoom-in duration-500 overflow-hidden">
-                        <CardContent className="pt-16 pb-12 text-center space-y-6 relative">
-                            <div className="absolute inset-0 bg-brand-green/5"></div>
-                            <div className="relative">
-                                <div className="h-24 w-24 bg-brand-green rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-brand-green/20 ring-8 ring-brand-green/10 animate-pulse">
-                                    <CheckCircle2 className="h-12 w-12 text-white" />
-                                </div>
-                                <div className="mt-8 space-y-2">
-                                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">Receipt Generated</h2>
-                                    <p className="text-xs font-bold text-brand-dark/50 italic px-8 leading-relaxed">The transaction has been hashed and added to the immutable collection ledger.</p>
-                                </div>
-                                <div className="pt-6 px-8">
-                                    <Button variant="secondary" className="w-full h-16 rounded-2xl uppercase font-black text-sm italic tracking-tighter shadow-xl hover:scale-[1.02] active:scale-95 transition-all" onClick={() => setSuccess(false)}>
-                                        Collect Again
-                                    </Button>
-                                </div>
+            <main className="p-4 max-w-lg mx-auto space-y-6">
+                {pendingCount > 0 && view === 'dashboard' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                                <RefreshCcw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
                             </div>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="space-y-6">
-                        {/* Geolocation Status - Sleeker Design */}
-                        <div className={cn(
-                            "px-6 py-4 rounded-[2rem] border-2 transition-all duration-500 flex items-center justify-between",
-                            latitude
-                                ? "bg-white border-brand-green/20 shadow-premium"
-                                : "bg-rose-50 border-rose-100 shadow-sm"
-                        )}>
-                            <div className="flex items-center gap-4">
-                                <div className={cn(
-                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
-                                    latitude ? "bg-brand-green text-white shadow-lg shadow-brand-green/20" : "bg-rose-100 text-rose-500 shadow-inner"
-                                )}>
-                                    {geoLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <MapPin className="h-5 w-5" />}
+                            <div>
+                                <p className="text-sm font-bold text-amber-900">{pendingCount} Records Pending</p>
+                                <p className="text-xs text-amber-700">Sync to update server</p>
+                            </div>
+                        </div>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleSync}
+                            disabled={isSyncing || !isOnline}
+                            className="bg-white border-amber-300 text-amber-800 hover:bg-amber-50 h-8 text-xs font-bold uppercase"
+                        >
+                            {isSyncing ? 'Syncing...' : 'Sync Now'}
+                        </Button>
+                    </div>
+                )}
+
+                {view === 'dashboard' && !success && (
+                    <div className="space-y-4">
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Users className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-dark/30 leading-none mb-1 shadow-sm">GPS Anchor</p>
-                                    <p className="text-xs font-black uppercase tracking-tighter">
-                                        {geoLoading ? <span className="text-brand-dark/40 italic">Syncing...</span> : latitude ? `${latitude.toFixed(5)}, ${longitude?.toFixed(5)}` : "Position Access Denied"}
-                                    </p>
+                                    <p className="font-medium text-gray-900">Total Clients</p>
+                                    <p className="text-sm text-gray-500">{clients.length} active clients</p>
                                 </div>
                             </div>
-                            {latitude && !geoLoading && (
-                                <div className="h-2 w-2 rounded-full bg-brand-green animate-pulse"></div>
-                            )}
                         </div>
-
-                        {/* Collection Form - High Focus */}
-                        <div className="bg-white rounded-[3rem] shadow-premium p-8 border border-white relative overflow-hidden">
-                            <div className="absolute right-0 top-0 p-4">
-                                <Camera className="h-5 w-5 text-brand-dark/5" />
+                        <button
+                            onClick={() => setView('select-client')}
+                            className="w-full bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-center gap-3 hover:border-blue-300 transition-colors"
+                        >
+                            <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-blue-600" />
                             </div>
+                            <span className="font-medium text-gray-700">Record Collection</span>
+                        </button>
+                    </div>
+                )}
 
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                <div className="space-y-3">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
-                                        <span className="w-4 h-[1px] bg-brand-green"></span>
-                                        Collection Value (FCFA)
-                                    </label>
-                                    <div className="relative group">
-                                        <input
-                                            required
-                                            type="number"
-                                            placeholder="0"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
-                                            className="w-full text-5xl font-black tracking-tighter bg-brand-dustGold/20 border-none rounded-3xl p-8 focus:ring-4 focus:ring-brand-green/10 placeholder:text-brand-dark/5 text-brand-dark outline-none transition-all tabular-nums text-center"
-                                        />
-                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-brand-dark/20 italic uppercase select-none">
-                                            FCFA
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3 px-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-brand-dark/40 flex items-center gap-2">
-                                        <span className="w-4 h-[1px] bg-brand-dark/20"></span>
-                                        Client Identification
-                                    </label>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="CLIENT NAME OR ID..."
-                                        value={clientName}
-                                        onChange={(e) => setClientName(e.target.value)}
-                                        className="w-full font-black uppercase tracking-widest bg-brand-dark/5 border-none rounded-2xl p-5 focus:ring-4 focus:ring-brand-green/10 placeholder:text-brand-dark/10 text-brand-dark text-[11px] outline-none transition-all"
-                                    />
-                                </div>
-
-                                <Button
-                                    type="submit"
-                                    className="w-full h-20 rounded-2xl text-lg shadow-2xl relative group overflow-hidden bg-brand-dark text-white hover:bg-brand-dark/95 active:scale-95 transition-all"
-                                    disabled={submitting || !latitude}
+                {view === 'select-client' && (
+                    <div className="space-y-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <input
+                                autoFocus
+                                type="text"
+                                placeholder="Search client name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-white border border-gray-200 rounded-lg py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            {filteredClients.map(client => (
+                                <button
+                                    key={client.id}
+                                    onClick={() => { setSelectedClient(client); setView('enter-collection'); }}
+                                    className="w-full bg-white p-4 rounded-lg border border-gray-200 flex items-center justify-between hover:border-blue-300 transition-colors"
                                 >
-                                    <div className="absolute inset-x-0 bottom-0 h-1 bg-brand-green/50 w-0 group-hover:w-full transition-all duration-1000"></div>
-                                    <div className="flex items-center justify-center gap-3">
-                                        {submitting ? <Loader2 className="h-6 w-6 animate-spin text-brand-green" /> : <CheckCircle2 className="h-6 w-6 text-brand-green" />}
-                                        <span className="font-black uppercase tracking-tight italic">Verify & Record Collection</span>
+                                    <div className="text-left">
+                                        <p className="font-medium text-gray-900">{client.name}</p>
+                                        <p className="text-sm text-gray-500">{client.quarter}</p>
                                     </div>
-                                </Button>
-
-                                {!latitude && !geoLoading && (
-                                    <div className="text-center space-y-2 px-10 animate-in fade-in duration-300">
-                                        <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest leading-relaxed">
-                                            GPS Authentication Required to initiate secure transaction layer
-                                        </p>
-                                    </div>
-                                )}
-                            </form>
+                                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                                </button>
+                            ))}
                         </div>
                     </div>
                 )}
 
-                {/* Secure Footer Insight */}
-                <div className="text-center pt-10 space-y-2 opacity-30 group">
-                    <p className="text-[8px] font-black text-brand-dark uppercase tracking-[0.4em] group-hover:text-brand-green transition-colors">PROCOLLECTOR SECURE AGENT TERMINAL</p>
-                    <p className="text-[8px] font-bold text-brand-dark uppercase tracking-widest">Altonixa Group Ltd • Biometric Verification Active</p>
-                </div>
-            </div>
+                {view === 'enter-collection' && selectedClient && (
+                    <form onSubmit={handleCollectionSubmit} className="space-y-6">
+                        <div className="bg-white p-4 rounded-lg border border-gray-200 flex items-center gap-4">
+                            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center font-medium text-gray-600">
+                                {selectedClient.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="font-medium text-gray-900">{selectedClient.name}</p>
+                                <p className="text-sm text-gray-500">{selectedClient.quarter}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-700">Daily Saving Amount</label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    autoFocus
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    placeholder="0"
+                                    className="w-full text-2xl font-bold text-gray-900 bg-transparent border-b-2 border-gray-200 focus:border-blue-500 outline-none py-2 placeholder:text-gray-300"
+                                />
+                                <span className="absolute right-0 top-1/2 -translate-y-1/2 text-sm text-gray-500">FCFA</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium text-gray-700">Payment Method</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setPaymentMethod('cash')}
+                                    className={cn(
+                                        "py-3 rounded-lg text-sm font-medium border transition-all",
+                                        paymentMethod === 'cash' ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-200"
+                                    )}
+                                >
+                                    Cash
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPaymentMethod('mobile_money')}
+                                    className={cn(
+                                        "py-3 rounded-lg text-sm font-medium border transition-all",
+                                        paymentMethod === 'mobile_money' ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-200"
+                                    )}
+                                >
+                                    Mobile Money
+                                </button>
+                            </div>
+                        </div>
+
+                        {paymentMethod === 'mobile_money' && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-700">Proof of Payment</label>
+                                <div className="relative">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <div className={cn(
+                                        "w-full p-4 rounded-lg border-2 border-dashed flex items-center justify-center gap-2",
+                                        proofFile ? "border-blue-500 bg-blue-50 text-blue-700" : "border-gray-300 bg-gray-50 text-gray-500"
+                                    )}>
+                                        <Camera className="h-5 w-5" />
+                                        <span className="text-sm font-medium">{proofFile ? proofFile.name : "Upload Screenshot"}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="pt-4">
+                            <Button
+                                type="submit"
+                                disabled={submitting || !amount}
+                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
+                            >
+                                {submitting ? <Loader2 className="animate-spin" /> : 'Confirm Collection'}
+                            </Button>
+                        </div>
+                    </form>
+                )}
+
+                {success && (
+                    <div className="fixed inset-0 bg-blue-600 z-50 flex items-center justify-center p-6">
+                        <div className="text-center text-white space-y-6">
+                            <div className="h-24 w-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle2 className="h-12 w-12 text-white" />
+                            </div>
+                            <h2 className="text-2xl font-bold uppercase tracking-tight">Success!</h2>
+                            <p className="text-white/80 font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                                {successMessage}
+                            </p>
+                            <p className="text-xs text-white/50 pt-8 uppercase tracking-widest">Redirecting...</p>
+                        </div>
+                    </div>
+                )}
+            </main>
         </div>
     );
 }

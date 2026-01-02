@@ -5,3 +5,5 @@ export { default as CollectionHistory } from './CollectionHistory';
 export { default as ClientManagement } from './ClientManagement';
 export { default as CollectorReports } from './CollectorReports';
 export { default as CollectorProfile } from './CollectorProfile';
+export { default as AddClient } from './AddClient';
+export { default as FieldCollection } from './FieldCollection';
