@@ -81,11 +81,11 @@ export function Login() {
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <Users className="h-4 w-4 text-brand-green" />
-                                <span className="text-xs font-bold">Admin</span>
+                                <span className="text-xs font-bold">Organization</span>
                             </div>
-                            <div className="text-xs text-brand-dark/60">Organization Management</div>
+                            <div className="text-xs text-brand-dark/60">Admin Portal</div>
                         </button>
-                        
+
                         <button
                             onClick={() => handleDemoLogin('supervisor', 'Demo Organization')}
                             className="p-4 border border-brand-green/30 rounded-lg hover:bg-brand-green/5 transition-colors text-left"
@@ -96,7 +96,7 @@ export function Login() {
                             </div>
                             <div className="text-xs text-brand-dark/60">Field Monitoring</div>
                         </button>
-                        
+
                         <button
                             onClick={() => handleDemoLogin('collector', 'Demo Organization')}
                             className="p-4 border border-brand-green/30 rounded-lg hover:bg-brand-green/5 transition-colors text-left"
@@ -107,7 +107,7 @@ export function Login() {
                             </div>
                             <div className="text-xs text-brand-dark/60">Field Collection</div>
                         </button>
-                        
+
                         <button
                             onClick={() => handleDemoLogin('client', 'Demo Organization')}
                             className="p-4 border border-brand-green/30 rounded-lg hover:bg-brand-green/5 transition-colors text-left"

@@ -34,29 +34,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string, subdomain: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // For now, validate basic inputs and create demo user
+      // TODO: Implement real backend authentication
+      // This should call your backend API endpoint for authentication
+      // Example:
+      // const response = await fetch('/api/v1/auth/login', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ email, password, subdomain })
+      // });
+      // const data = await response.json();
+      // if (response.ok) {
+      //   const user = data.user;
+      //   localStorage.setItem('procollector_user', JSON.stringify(user));
+      //   localStorage.setItem('procollector_auth_token', data.token);
+      //   setUser(user);
+      //   return true;
+      // }
+
+      // Temporary demo implementation - REMOVE IN PRODUCTION
       if (!email || !password || !subdomain) {
         console.error('Missing required fields');
         setIsLoading(false);
         return false;
       }
 
-      // Demo: Accept any credentials for now (MUST implement real backend auth)
-      // In production: Call backend API to validate credentials
+      // Demo: Accept any credentials (REPLACE WITH REAL AUTH)
       const newUser: AuthUser = {
         id: Math.random().toString(36).substr(2, 9),
         email,
         organizationSubdomain: subdomain,
         organizationName: subdomain.charAt(0).toUpperCase() + subdomain.slice(1),
-        role: 'organization', // TODO: Determine role from backend
+        role: 'organization', // TODO: Get from backend response
         name: email.split('@')[0],
       };
 
-      // Store user in localStorage
       localStorage.setItem('procollector_user', JSON.stringify(newUser));
       localStorage.setItem('procollector_auth_token', 'demo-token-' + Date.now());
-      
+
       setUser(newUser);
       setIsLoading(false);
       return true;

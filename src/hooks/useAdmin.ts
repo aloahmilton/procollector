@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useContext } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { Permission, AdminAction, RolePermissions } from '../types/adminActions';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { RolePermissions } from '../types/adminActions';
+import type { Permission, AdminAction } from '../types/adminActions';
 import type { User, Room, Client, Deposit, SystemSettings } from '../types/admin';
 
 interface UseAdminStateReturn {
@@ -13,7 +14,6 @@ interface UseAdminStateReturn {
 export function useAdminState(): UseAdminStateReturn {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
 
   const hasPermission = useCallback((action: AdminAction, targetId?: string): boolean => {
     if (!user) return false;
@@ -40,7 +40,7 @@ export function useAdminState(): UseAdminStateReturn {
   const canAccessRoom = useCallback((roomId: string): boolean => {
     if (!user) return false;
     
-    if (user.role === 'SUPER_ADMIN') return true;
+    if (user.role === 'admin') return true;
     
     // Additional room access logic would go here
     return false;
@@ -55,7 +55,7 @@ export function useAdminState(): UseAdminStateReturn {
     hasPermission,
     canAccessRoom,
     isLoading,
-    error
+    error: null
   };
 }
 
@@ -75,7 +75,7 @@ interface UseAdminActionsReturn {
 export function useAdminActions(): UseAdminActionsReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   const handleError = (error: Error) => {
     setError(error);

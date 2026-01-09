@@ -8,111 +8,108 @@ export function HostelModule() {
     const [activeTab, setActiveTab] = useState<'rooms' | 'residents' | 'maintenance'>('rooms');
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
+        <div className="space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black uppercase tracking-tighter italic">Hostel & Accommodation</h2>
-                    <p className="text-sm font-bold text-brand-dark/40 uppercase tracking-widest mt-1">Smart Room Allocation & Residency tracking</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Hostel & Accommodation</h2>
+                    <p className="text-sm text-gray-600 mt-1">Smart Room Allocation & Residency tracking</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="rounded-2xl border-brand-dark/5 bg-white shadow-sm font-black uppercase tracking-tight text-[10px] h-12">
+                    <Button variant="outline" className="h-9 px-3 text-sm">
                         <PieChart className="h-4 w-4 mr-2" />
                         Occupancy Report
                     </Button>
-                    <Button className="rounded-2xl bg-brand-dark text-white shadow-xl font-black uppercase tracking-tight text-[10px] h-12 px-6">
+                    <Button className="h-9 px-4 bg-gray-900 hover:bg-gray-800 text-white text-sm">
                         <Plus className="h-4 w-4 mr-2" />
                         New Admission
                     </Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                    { label: 'Total Capacity', value: '450', sub: 'Beds available', icon: Bed, color: 'brand-dark' },
-                    { label: 'Current Guests', value: '382', sub: '85% Occupancy', icon: Users, color: 'brand-green' },
-                    { label: 'Maintenance', value: '12', sub: 'Active requests', icon: Settings, color: 'rose-500' }
+                    { label: 'Total Capacity', value: 'Loading...', sub: 'Beds available', icon: Bed },
+                    { label: 'Current Guests', value: 'Loading...', sub: 'Occupancy', icon: Users },
+                    { label: 'Maintenance', value: 'Loading...', sub: 'Active requests', icon: Settings }
                 ].map((stat, i) => (
-                    <Card key={i} className="rounded-[2.5rem] border-none shadow-premium bg-white p-8 group overflow-hidden relative">
-                        <div className={cn("absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-3xl opacity-10", `bg-${stat.color}`)}></div>
-                        <div className="relative z-10 flex items-center justify-between">
+                    <div key={i} className="bg-white p-4 border border-gray-200 rounded-lg">
+                        <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-dark/40 mb-1">{stat.label}</p>
-                                <h4 className="text-4xl font-black italic tracking-tighter">{stat.value}</h4>
-                                <p className="text-xs font-bold text-brand-dark/30 mt-1 uppercase tracking-tight">{stat.sub}</p>
+                                <p className="text-xs font-medium text-gray-600 uppercase">{stat.label}</p>
+                                <p className="text-2xl font-semibold text-gray-900 mt-1">{stat.value}</p>
+                                <p className="text-xs text-gray-500 mt-1">{stat.sub}</p>
                             </div>
-                            <div className={cn("h-14 w-14 rounded-3xl flex items-center justify-center shadow-2xl", `bg-${stat.color}/10 text-${stat.color}`)}>
-                                <stat.icon className="h-7 w-7" />
+                            <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <stat.icon className="h-5 w-5 text-gray-600" />
                             </div>
                         </div>
-                    </Card>
+                    </div>
                 ))}
             </div>
 
-            <div className="bg-white rounded-[3.5rem] shadow-premium p-10 border border-white">
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center gap-4 bg-brand-dustGold/10 p-2 rounded-[2rem]">
-                        {(['rooms', 'residents', 'maintenance'] as const).map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={cn(
-                                    "px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all",
-                                    activeTab === tab
-                                        ? "bg-brand-dark text-white shadow-xl"
-                                        : "text-brand-dark/40 hover:text-brand-dark"
-                                )}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-brand-green bg-brand-green/5 px-4 py-2 rounded-full">
-                        <ShieldCheck className="h-4 w-4" />
-                        Biometric Sync Active
-                    </div>
+            <div className="bg-white border border-gray-200 rounded-lg">
+                <div className="flex border-b border-gray-200">
+                    {(['rooms', 'residents', 'maintenance'] as const).map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                                activeTab === tab
+                                    ? 'border-gray-900 text-gray-900'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                            }`}
+                        >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </button>
+                    ))}
                 </div>
 
-                <div className="space-y-4">
-                    {[
-                        { room: 'BLOCK A - 101', type: '4-Bed Standard', occupancy: 4, status: 'Full', residents: ['John D.', 'Paul S.', 'Jean M.', 'Kevin L.'] },
-                        { room: 'BLOCK A - 102', type: '4-Bed Standard', occupancy: 3, status: 'Available', residents: ['Moussa K.', 'Samuel O.', 'David P.'] },
-                        { room: 'BLOCK B - 204', type: '2-Bed Premium', occupancy: 2, status: 'Full', residents: ['Alice B.', 'Marie C.'] }
-                    ].map((item, i) => (
-                        <div key={i} className="group flex items-center justify-between p-6 rounded-[2.5rem] bg-brand-dustGold/5 hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-brand-dustGold/20">
-                            <div className="flex items-center gap-8">
-                                <div className="h-14 w-14 rounded-2xl bg-brand-dark flex items-center justify-center text-white font-black text-sm italic">
-                                    {item.room.split(' - ')[1]}
-                                </div>
-                                <div>
-                                    <p className="font-black text-sm uppercase tracking-tight">{item.room}</p>
-                                    <p className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-widest">{item.type} • {item.residents.length}/{item.occupancy} OCCUPIED</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-12">
-                                <div className="flex -space-x-3">
-                                    {item.residents.map((r, ri) => (
-                                        <div key={ri} className="h-10 w-10 rounded-xl bg-white border-2 border-brand-dustGold/20 flex items-center justify-center text-[10px] font-black uppercase italic shadow-sm">
-                                            {r.split(' ')[0][0]}{r.split(' ')[1][0]}
-                                        </div>
-                                    ))}
-                                    {item.occupancy > item.residents.length && (
-                                        <div className="h-10 w-10 rounded-xl bg-brand-green/10 border-2 border-dashed border-brand-green/30 flex items-center justify-center text-brand-green">
-                                            <Plus className="h-4 w-4" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className={cn(
-                                    "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-                                    item.status === 'Full' ? "bg-brand-dark text-white border-brand-dark" : "bg-brand-green/10 text-brand-green border-brand-green/20"
-                                )}>
-                                    {item.status}
-                                </div>
-                                <Button variant="ghost" size="icon" className="rounded-full h-12 w-12 hover:bg-brand-dark hover:text-white transition-all">
-                                    <ChevronRight className="h-5 w-5" />
-                                </Button>
-                            </div>
+                <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Room Management</h3>
+                        <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                            <ShieldCheck className="h-4 w-4" />
+                            Biometric Sync Active
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                                <thead>
+                                <tr className="bg-gray-50 border-b border-gray-200">
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Room</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Type</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Occupancy</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Residents</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {[
+                                    { room: 'Loading...', type: 'Loading...', occupancy: 'Loading...', status: 'Loading...', residents: 'Loading...' }
+                                ].map((item, i) => (
+                                    <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.room}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">{item.type}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">{item.occupancy}</td>
+                                        <td className="px-4 py-3 text-sm">
+                                            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-600">{item.residents}</td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex gap-2">
+                                                <Button size="sm" variant="outline">Edit</Button>
+                                                <Button size="sm" variant="outline">View</Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

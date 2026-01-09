@@ -1,5 +1,4 @@
-import React from 'react';
-import { Shield, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Shield, Facebook, Twitter, Instagram } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -23,7 +22,7 @@ export default function Footer() {
                 <Twitter className="w-5 h-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-blue-400 transition">
-                <LinkedIn className="w-5 h-5" />
+                <Instagram className="w-5 h-5" />
               </a>
               <a href="#" className="text-gray-400 hover:text-blue-400 transition">
                 <Instagram className="w-5 h-5" />

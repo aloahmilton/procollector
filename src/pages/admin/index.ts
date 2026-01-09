@@ -5,5 +5,5 @@ export { default as Reports } from './Reports';
 export { default as SmtpConfig } from './SmtpConfig';
 export { default as ErrorManagement } from './ErrorManagement';
 export { default as AdminSettings } from './AdminSettings';
-export { default as GlobalOverview } from './GlobalOverview';
+export { GlobalOverview } from './GlobalOverview';
 export { default as Organizations } from './Organizations';

@@ -14,6 +14,7 @@ import hostelRoutes from './routes/hostel.js';
 import inventoryRoutes from './routes/inventory.js';
 import usersRoutes from './routes/users.js';
 import clientsRoutes from './routes/clients.js';
+import dashboardRoutes from './routes/dashboard.js';
 
 // Import middleware
 import { apiLimiter } from './middleware/rateLimiter.js';
@@ -56,7 +57,6 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-// API routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/collections', collectionsRoutes);
 app.use('/api/v1/transport', transportRoutes);
@@ -64,6 +64,7 @@ app.use('/api/v1/hostel', hostelRoutes);
 app.use('/api/v1/inventory', inventoryRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/clients', clientsRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use((req, res) => {

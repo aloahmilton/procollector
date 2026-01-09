@@ -15,11 +15,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <button
                 ref={ref}
                 className={cn(
-                    "inline-flex items-center justify-center whitespace-nowrap rounded-button text-sm font-black transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] uppercase tracking-wider",
+                    "inline-flex items-center justify-center whitespace-nowrap rounded-button text-sm font-black transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-slate-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] uppercase tracking-wider",
 
                     // Variants
-                    variant === 'primary' && "bg-brand-green text-white hover:bg-brand-green-dark shadow-lg shadow-brand-green/20 border-none",
-                    variant === 'secondary' && "bg-brand-dark text-white hover:bg-brand-dark-soft shadow-lg",
+                    variant === 'primary' && "bg-brand-dark text-white hover:bg-brand-dark-soft shadow-lg shadow-brand-dark/20 border-none",
+                    variant === 'secondary' && "bg-brand-slate-600 text-white hover:bg-brand-slate-700 shadow-lg",
                     variant === 'outline' && "border-2 border-brand-dark bg-transparent text-brand-dark hover:bg-brand-dark hover:text-white",
                     variant === 'destructive' && "bg-rose-600 text-white hover:bg-rose-700 shadow-lg",
                     variant === 'ghost' && "text-inherit hover:bg-white/10 hover:text-white",

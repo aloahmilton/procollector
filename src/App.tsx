@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet, useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -42,6 +42,14 @@ import { InventoryModule } from './pages/organization/modules/InventoryModule';
 // Collector Portal Pages
 import FieldCollection from './pages/collector/FieldCollection';
 import { DepositWithdrawal } from './pages/collector/DepositWithdrawal';
+import CollectorDashboard from './pages/collector/CollectorDashboard';
+import CollectorHome from './pages/collector/CollectorHome';
+import AddClient from './pages/collector/AddClient';
+import CollectionRoutes from './pages/collector/CollectionRoutes';
+import CollectionHistory from './pages/collector/CollectionHistory';
+import ClientManagement from './pages/collector/ClientManagement';
+import CollectorReports from './pages/collector/CollectorReports';
+import CollectorProfile from './pages/collector/CollectorProfile';
 
 // Client Portal Pages
 import { ClientPortal } from './pages/client/ClientPortal';
@@ -72,14 +80,19 @@ function DashboardLayout() {
 
 // Demo Access Wrapper Component
 function DemoAccessWrapper({ children, role }: { children: React.ReactNode; role: string }) {
-  const { setDemoUser } = useAuth();
+  const { setDemoUser, user } = useAuth();
   const [searchParams] = useSearchParams();
+  const hasSetDemoUserRef = useRef(false);
 
   // Set demo user on mount if not already authenticated
   useEffect(() => {
-    const orgName = searchParams.get('org') || 'Demo Organization';
-    setDemoUser(orgName, role as any);
-  }, [setDemoUser, role, searchParams]);
+    // Only set demo user once and if user is not already set
+    if (!hasSetDemoUserRef.current && !user) {
+      hasSetDemoUserRef.current = true;
+      const orgName = searchParams.get('org') || 'Demo Organization';
+      setDemoUser(orgName, role as any);
+    }
+  }, []); // Empty dependency array - run only once on mount
 
   return <>{children}</>;
 }
@@ -128,7 +141,16 @@ function App() {
             <Route path="monitoring" element={<ProtectedRoute requiredRole="supervisor"><LiveMonitoring /></ProtectedRoute>} />
           </Route>
 
-          <Route path="/demo-collector" element={<DemoAccessWrapper role="collector"><FieldCollection /></DemoAccessWrapper>} />
+          <Route path="/demo-collector" element={<DemoAccessWrapper role="collector"><CollectorDashboard /></DemoAccessWrapper>}>
+            <Route index element={<CollectorHome />} />
+            <Route path="add-client" element={<AddClient />} />
+            <Route path="collect" element={<FieldCollection />} />
+            <Route path="routes" element={<CollectionRoutes />} />
+            <Route path="history" element={<CollectionHistory />} />
+            <Route path="clients" element={<ClientManagement />} />
+            <Route path="reports" element={<CollectorReports />} />
+            <Route path="profile" element={<CollectorProfile />} />
+          </Route>
           <Route path="/demo-collector/deposits" element={<DemoAccessWrapper role="collector"><DashboardLayout /></DemoAccessWrapper>}>
             <Route index element={<ProtectedRoute requiredRole="collector"><DepositWithdrawal /></ProtectedRoute>} />
           </Route>
@@ -156,7 +178,16 @@ function App() {
           </Route>
 
           {/* Collector Portal */}
-          <Route path="/collector" element={<ProtectedRoute requiredRole="collector"><FieldCollection /></ProtectedRoute>} />
+          <Route path="/collector" element={<ProtectedRoute requiredRole="collector"><CollectorDashboard /></ProtectedRoute>}>
+            <Route index element={<CollectorHome />} />
+            <Route path="add-client" element={<AddClient />} />
+            <Route path="collect" element={<FieldCollection />} />
+            <Route path="routes" element={<CollectionRoutes />} />
+            <Route path="history" element={<CollectionHistory />} />
+            <Route path="clients" element={<ClientManagement />} />
+            <Route path="reports" element={<CollectorReports />} />
+            <Route path="profile" element={<CollectorProfile />} />
+          </Route>
           <Route path="/collector/deposits" element={<ProtectedRoute requiredRole="collector"><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<ProtectedRoute requiredRole="collector"><DepositWithdrawal /></ProtectedRoute>} />
           </Route>

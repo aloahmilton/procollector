@@ -41,9 +41,9 @@ export default function CollectionHistory() {
               <input
                 type="text"
                 placeholder="Search collections..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+                className="pl-10 pr-4 py-2 border border-brand-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-slate-400 focus:border-brand-slate-400 text-sm bg-white text-brand-dark placeholder:text-brand-slate-400"
               />
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+              <Search className="w-5 h-5 text-brand-slate-400 absolute left-3 top-2.5" />
             </div>
             <div className="flex items-center space-x-4">
               <Calendar className="w-5 h-5 text-gray-500" />
@@ -106,7 +106,7 @@ export default function CollectionHistory() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                     collection.status === 'Completed'
-                      ? 'bg-green-100 text-green-800'
+                      ? 'bg-brand-slate-100 text-brand-slate-700'
                       : 'bg-red-100 text-red-800'
                   }`}>
                     {collection.status}

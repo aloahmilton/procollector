@@ -163,4 +163,96 @@ router.post(
     }
 );
 
+/**
+ * @route   PUT /api/v1/clients/:id
+ * @desc    Update a client
+ * @access  Private (Admin, Organization, Collector)
+ */
+router.put('/:id',
+    authenticate,
+    [
+        body('name').optional().notEmpty().withMessage('Name cannot be empty'),
+        body('email').optional().isEmail().withMessage('Valid email is required'),
+        body('phone').optional().notEmpty().withMessage('Phone cannot be empty'),
+        body('status').optional().isIn(['active', 'inactive']).withMessage('Invalid status')
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        try {
+            const client = await Client.findByPk(req.params.id);
+
+            if (!client) {
+                return res.status(404).json({ success: false, error: 'Client not found' });
+            }
+
+            // Check authorization
+            if (req.user.role === 'collector' && client.assignedCollectorId !== req.user.id) {
+                return res.status(403).json({ success: false, error: 'Not authorized to update this client' });
+            }
+
+            if (req.user.role === 'organization' && client.organizationId !== req.user.organizationId) {
+                return res.status(403).json({ success: false, error: 'Not authorized for this organization' });
+            }
+
+            const { name, email, phone, status, quarter, address } = req.body;
+
+            await client.update({
+                fullName: name,
+                email,
+                phone,
+                status,
+                quarter,
+                address
+            });
+
+            res.json({
+                success: true,
+                data: client,
+                message: 'Client updated successfully'
+            });
+        } catch (error) {
+            console.error('Update client error:', error);
+            res.status(500).json({ success: false, error: 'Failed to update client' });
+        }
+    }
+);
+
+/**
+ * @route   DELETE /api/v1/clients/:id
+ * @desc    Delete a client
+ * @access  Private (Admin, Organization, Collector)
+ */
+router.delete('/:id', authenticate, async (req, res) => {
+    try {
+        const client = await Client.findByPk(req.params.id);
+
+        if (!client) {
+            return res.status(404).json({ success: false, error: 'Client not found' });
+        }
+
+        // Check authorization
+        if (req.user.role === 'collector' && client.assignedCollectorId !== req.user.id) {
+            return res.status(403).json({ success: false, error: 'Not authorized to delete this client' });
+        }
+
+        if (req.user.role === 'organization' && client.organizationId !== req.user.organizationId) {
+            return res.status(403).json({ success: false, error: 'Not authorized for this organization' });
+        }
+
+        await client.destroy();
+
+        res.json({
+            success: true,
+            message: 'Client deleted successfully'
+        });
+    } catch (error) {
+        console.error('Delete client error:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete client' });
+    }
+});
+
 export default router;

@@ -61,7 +61,7 @@ export default function Reports() {
             </div>
             <div className="p-4 border rounded-lg">
               <h3 className="font-medium mb-2">Success Rate</h3>
-              <p className="text-2xl font-bold text-green-600">98.5%</p>
+              <p className="text-2xl font-bold text-brand-slate-600">98.5%</p>
             </div>
             <div className="p-4 border rounded-lg">
               <h3 className="font-medium mb-2">Active Collectors</h3>

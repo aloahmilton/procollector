@@ -1,11 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { Building2, Activity, Globe, Plus, Shield, CreditCard, Search, MoreVertical } from 'lucide-react';
+import { Building2, Activity, Globe, Plus, Shield, CreditCard, Search, MoreVertical, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { cn } from '../../lib/utils';
 
 export function GlobalOverview() {
     const [activeTab, setActiveTab] = useState<'overview' | 'orgs' | 'billing'>('overview');
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    const fetchDashboardData = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await fetch('/api/v1/dashboard/admin', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                setData(result.data);
+            } else {
+                setError(result.error || 'Failed to load dashboard data');
+            }
+        } catch (err) {
+            console.error('Dashboard fetch error:', err);
+            setError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-brand-dark" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-red-600 mb-4">{error}</p>
+                <Button onClick={fetchDashboardData}>Retry</Button>
+            </div>
+        );
+    }
+
+    const stats = data?.stats || [];
+    const recentActivity = data?.recentActivity || [];
 
     return (
         <div className="space-y-10">
@@ -38,67 +89,66 @@ export function GlobalOverview() {
             </div>
 
             {activeTab === 'overview' && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="grid gap-6 md:grid-cols-3">
-                        <Card className="border-brand-dark/5 bg-white shadow-premium hover:scale-[1.02] transition-transform group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-brand-dark/5">
-                                <CardTitle className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">Active Organizations</CardTitle>
-                                <Building2 className="h-5 w-5 text-brand-green group-hover:scale-125 transition-transform" />
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-2xl font-black text-brand-dark tracking-tighter">42</div>
-                                <p className="text-[10px] font-black text-brand-green uppercase tracking-widest mt-1">+3 this month</p>
-                            </CardContent>
-                        </Card>
+                <div className="space-y-6">
+                    <div className="grid gap-3 md:grid-cols-3">
+                        {stats.map((stat, index) => {
+                            const icons = {
+                                'Total Organizations': Building2,
+                                'Total Users': Shield,
+                                'System Collections': CreditCard,
+                                'System Health': Activity
+                            };
+                            const colors = {
+                                'Total Organizations': 'bg-blue-100 text-blue-600',
+                                'Total Users': 'bg-purple-100 text-purple-600',
+                                'System Collections': 'bg-green-100 text-green-600',
+                                'System Health': 'bg-gray-100 text-gray-600'
+                            };
+                            const IconComponent = icons[stat.label] || Activity;
 
-                        <Card className="border-brand-dark/5 bg-white shadow-premium hover:scale-[1.02] transition-transform group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-brand-dark/5">
-                                <CardTitle className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">System Load</CardTitle>
-                                <Activity className="h-5 w-5 text-indigo-500 group-hover:scale-125 transition-transform" />
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-2xl font-black text-brand-dark tracking-tighter">Normal</div>
-                                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">LATENCY: 42ms</p>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-brand-dark/5 bg-white shadow-premium hover:scale-[1.02] transition-transform group">
-                            <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-brand-dark/5">
-                                <CardTitle className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">Global Volume</CardTitle>
-                                <Globe className="h-5 w-5 text-amber-500 group-hover:scale-125 transition-transform" />
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-2xl font-black text-brand-dark tracking-tighter italic">FCFA 1.2B</div>
-                                <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mt-1">Total platform revenue</p>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <Card className="border-brand-dark/5 bg-white shadow-premium overflow-hidden">
-                        <CardHeader className="border-b border-brand-dark/5 bg-brand-dark/5 px-8 py-6">
-                            <CardTitle className="font-black uppercase tracking-tight text-brand-dark italic">Platform Audit Log</CardTitle>
-                            <CardDescription className="font-bold text-xs uppercase tracking-widest text-brand-dark/40">Real-time system health and organization activity</CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="divide-y divide-brand-dark/5">
-                                {[
-                                    { event: 'New Organization Registered', detail: 'Douala City Council', time: '12 min ago' },
-                                    { event: 'Security Update Applied', detail: 'v2.4.1 Encryption Patch', time: '1 hr ago' },
-                                    { event: 'Bulk Agent Sync', detail: 'Central Bank Union', time: '3 hrs ago' },
-                                ].map((log, i) => (
-                                    <div key={i} className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-brand-dark/5 transition-colors group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 bg-brand-dark/10 rounded-xl flex items-center justify-center font-black group-hover:bg-brand-green group-hover:text-brand-dark transition-colors">
-                                                {i + 1}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black text-brand-dark uppercase tracking-tight">{log.event}</p>
-                                                <p className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">{log.detail}</p>
+                            return (
+                                <Card key={index} className="border border-brand-slate-200 shadow-sm bg-white">
+                                    <CardHeader className="p-4 pb-3">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <CardTitle className="text-xs font-medium text-brand-slate-600 uppercase tracking-wide">
+                                                {stat.label}
+                                            </CardTitle>
+                                            <div className={`p-2 rounded-lg ${colors[stat.label] || 'bg-gray-100'}`}>
+                                                <IconComponent className="h-4 w-4" />
                                             </div>
                                         </div>
-                                        <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest italic">{log.time}</span>
+                                        <div className="text-2xl font-bold text-brand-dark mb-2">{stat.value}</div>
+                                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-brand-slate-100 text-brand-slate-700">
+                                            {stat.change}
+                                        </div>
+                                    </CardHeader>
+                                </Card>
+                            );
+                        })}
+                    </div>
+
+                    <Card className="border border-brand-slate-200 shadow-sm bg-white overflow-hidden">
+                        <CardHeader className="border-b border-brand-slate-200 px-4 py-3">
+                            <CardTitle className="text-lg font-semibold text-brand-dark">System Activity Log</CardTitle>
+                            <CardDescription className="text-xs text-brand-slate-500">Recent platform events and updates</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y divide-brand-slate-100">
+                                {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
+                                    <div key={i} className="px-4 py-3 hover:bg-brand-slate-50 transition-colors">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium text-brand-dark">{activity.action}</p>
+                                                <p className="text-xs text-brand-slate-500 mt-0.5">by {activity.user}</p>
+                                            </div>
+                                            <span className="text-xs text-brand-slate-400 font-medium">{activity.time}</span>
+                                        </div>
                                     </div>
-                                ))}
+                                )) : (
+                                    <div className="px-4 py-6 text-center">
+                                        <p className="text-sm text-brand-slate-500">No recent activity</p>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -113,7 +163,7 @@ export function GlobalOverview() {
                             <input
                                 type="text"
                                 placeholder="Search institutions..."
-                                className="w-full pl-12 pr-6 py-3 bg-brand-dark/5 border-none rounded-2xl text-xs font-black uppercase tracking-widest placeholder:opacity-30 focus:ring-4 focus:ring-brand-green/20"
+                                className="w-full pl-12 pr-6 py-3 bg-brand-dark/5 border-none rounded-2xl text-xs font-black uppercase tracking-widest placeholder:opacity-30 focus:ring-2 focus:ring-gray-400 focus:border-gray-400"
                             />
                         </div>
                         <Button className="ml-4 h-12 px-8 rounded-2xl shadow-xl shadow-brand-green/20">
@@ -127,7 +177,7 @@ export function GlobalOverview() {
                             { name: 'National Teachers Union', variant: 'blue', type: 'UNION', agents: 42, status: 'Active', plan: 'Standard' },
                             { name: 'Eco Bank Cameroon', variant: 'green', type: 'BANK', agents: 89, status: 'Pending', plan: 'Gold' },
                         ].map((org, i) => (
-                            <div key={i} className="bg-white p-6 rounded-[2rem] border border-brand-dark/5 shadow-premium flex items-center justify-between hover:border-brand-green transition-all group">
+                            <div key={i} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between hover:border-gray-300">
                                 <div className="flex items-center gap-6">
                                     <div className="h-16 w-16 bg-brand-dustGold rounded-[1.5rem] flex items-center justify-center border-2 border-brand-dark/5 group-hover:bg-brand-green transition-colors">
                                         <Shield className="h-8 w-8 text-brand-dark" />
@@ -136,7 +186,7 @@ export function GlobalOverview() {
                                         <h4 className="text-lg font-black uppercase tracking-tight text-brand-dark">{org.name}</h4>
                                         <div className="flex gap-4">
                                             <span className="text-[9px] font-black uppercase tracking-widest bg-brand-dark/5 px-2 py-0.5 rounded text-brand-dark/60">{org.type}</span>
-                                            <span className="text-[9px] font-black uppercase tracking-widest text-brand-green">{org.agents} Active Collectors</span>
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-600">{org.agents} Active Collectors</span>
                                         </div>
                                     </div>
                                 </div>
@@ -147,7 +197,7 @@ export function GlobalOverview() {
                                     </div>
                                     <div className={cn(
                                         "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest",
-                                        org.status === 'Active' ? "bg-brand-green text-brand-dark" : "bg-brand-dark/5 text-brand-dark/40"
+                                        org.status === 'Active' ? "bg-gray-100 text-gray-700" : "bg-brand-dark/5 text-brand-dark/40"
                                     )}>
                                         {org.status}
                                     </div>
@@ -162,7 +212,7 @@ export function GlobalOverview() {
             )}
 
             {activeTab === 'billing' && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
                             { title: 'Standard Plan', price: 'FCFA 250,000', per: 'month', features: ['Up to 50 Agents', 'Basic Analytics', 'Email Support'] },
@@ -170,8 +220,8 @@ export function GlobalOverview() {
                             { title: 'Revenue Share', price: '2.5%', per: 'transaction', features: ['Zero recurring', 'Full Features', '24/7 Priority'] },
                         ].map((plan, i) => (
                             <Card key={i} className={cn(
-                                "border-2 overflow-hidden shadow-premium flex flex-col justify-between",
-                                plan.highlight ? "border-brand-green bg-brand-green/5" : "border-brand-dark/5 bg-white"
+                                "border-2 overflow-hidden shadow-sm flex flex-col justify-between",
+                                plan.highlight ? "border-gray-400 bg-gray-50" : "border-brand-dark/5 bg-white"
                             )}>
                                 <div className="p-8 space-y-6">
                                     {plan.highlight && <div className="text-brand-green font-black text-[9px] uppercase tracking-[0.3em] mb-4 text-center">Most Popular</div>}
@@ -182,8 +232,8 @@ export function GlobalOverview() {
                                     </div>
                                     <div className="space-y-3 pt-6">
                                         {plan.features.map((f, j) => (
-                                            <div key={j} className="flex items-center gap-3 text-[10px] font-bold text-brand-dark/60 uppercase">
-                                                <div className="h-1.5 w-1.5 rounded-full bg-brand-green" />
+                                            <div key={j} className="flex items-center gap-2 text-xs font-medium text-gray-700 uppercase">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-gray-600" />
                                                 {f}
                                             </div>
                                         ))}

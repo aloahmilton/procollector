@@ -44,39 +44,38 @@ export function Sidebar({ className }: SidebarProps) {
 
     return (
         <div className={cn(
-            "relative flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-300 z-20 overflow-hidden",
+            "relative flex flex-col h-full bg-white border-r border-gray-300 transition-all duration-300 z-20 overflow-hidden",
             collapsed ? "w-16" : "w-64",
             className
         )}>
             {/* Logo Area */}
-            <div className="flex items-center h-16 px-4 border-b border-gray-200">
-                <Link to="/" className="flex items-center justify-center w-full">
-                    <img
-                        src="/favicon.jpg"
-                        alt="Logo"
-                        className="h-10 w-10 rounded-lg border border-gray-300 group-hover:scale-105 transition-transform"
-                    />
+            <div className="flex items-center h-14 px-4 border-b border-gray-300 bg-gray-50">
+                <Link to="/" className="flex items-center justify-center w-full gap-2">
+                    <div className="h-8 w-8 bg-brand-dark flex items-center justify-center">
+                        <LayoutDashboard className="h-4 w-4 text-white" />
+                    </div>
+                    {!collapsed && <span className="text-sm font-semibold text-gray-900">Procollector</span>}
                 </Link>
             </div>
 
             {/* Navigation */}
-            <div className="flex-1 py-4 space-y-1 px-2">
+            <div className="flex-1 py-3 space-y-1 px-3 overflow-y-auto">
                 {navItems.map((item) => (
                     <NavLink
                         key={item.label}
                         to={item.to}
                         end={item.end}
                         className={({ isActive }) => cn(
-                            "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
+                            "flex items-center gap-3 px-3 py-2 rounded-md transition-colors duration-200",
                             isActive
-                                ? "bg-blue-50 text-blue-700 border border-blue-100"
-                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                ? "bg-brand-slate-100 text-brand-dark border-r-2 border-brand-dark"
+                                : "text-gray-700 hover:text-brand-dark hover:bg-gray-50"
                         )}
                     >
                         {({ isActive }) => (
                             <>
-                                <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700")} />
-                                {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+                                <item.icon className={cn("h-5 w-5 shrink-0 transition-transform", isActive ? "text-white" : "text-brand-slate-500 group-hover:text-brand-dark group-hover:scale-110")} />
+                                {!collapsed && <span className={cn("text-sm font-medium", isActive ? "text-white" : "")}>{item.label}</span>}
                             </>
                         )}
                     </NavLink>
@@ -84,17 +83,17 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
 
             {/* Footer / User Profile */}
-            <div className="p-4 border-t border-gray-200 space-y-3">
+            <div className="p-4 border-t border-gray-300 space-y-3">
                 {!collapsed && (
-                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Authenticated</p>
-                        <p className="text-sm font-medium text-gray-900">admin@procollector.com</p>
+                    <div className="px-3 py-2 bg-gray-100 rounded">
+                        <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">Authenticated</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">admin@procollector.com</p>
                     </div>
                 )}
                 <Link to="/login" className="w-full">
-                    <Button variant="ghost" className={cn("w-full justify-start text-gray-600 hover:text-gray-900", collapsed && "justify-center px-0")}>
-                        <LogOut className="h-5 w-5 mr-3 shrink-0" />
-                        {!collapsed && <span className="text-sm font-medium">Sign Out</span>}
+                    <Button variant="ghost" className={cn("w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100", collapsed && "justify-center px-0")}>
+                        <LogOut className="h-4 w-4 mr-2 shrink-0" />
+                        {!collapsed && <span className="text-sm">Sign Out</span>}
                     </Button>
                 </Link>
             </div>
@@ -102,9 +101,9 @@ export function Sidebar({ className }: SidebarProps) {
             {/* Collapse Toggle */}
             <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="absolute top-20 -right-3 h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shadow-lg hover:bg-gray-200 transition-colors z-30"
+                className="absolute top-16 -right-3 h-6 w-6 bg-gray-200 rounded flex items-center justify-center text-gray-600 hover:bg-gray-300 transition-colors z-30"
             >
-                {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+                {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
             </button>
         </div>
     );

@@ -23,7 +23,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 function CollectorDashboard() {
   const navigate = useNavigate();

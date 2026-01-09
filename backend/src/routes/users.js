@@ -142,4 +142,89 @@ router.patch('/:id/profile', async (req, res) => {
     }
 });
 
+// @route   PUT /api/v1/users/collectors/:id
+// @desc    Update a collector
+router.put('/collectors/:id',
+    [
+        body('email').optional().isEmail().normalizeEmail(),
+        body('name').optional().notEmpty(),
+        body('phone').optional(),
+        body('baseSalary').optional().isFloat({ min: 0 }),
+        body('commissionRate').optional().isFloat({ min: 0, max: 100 }),
+        body('status').optional().isIn(['active', 'inactive', 'pending', 'blocked'])
+    ],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ success: false, errors: errors.array() });
+            }
+
+            const collector = await User.findOne({
+                where: {
+                    id: req.params.id,
+                    role: 'collector',
+                    organizationId: req.user.organizationId
+                }
+            });
+
+            if (!collector) {
+                return res.status(404).json({ success: false, error: 'Collector not found' });
+            }
+
+            const { email, name, phone, baseSalary, commissionRate, status } = req.body;
+
+            await collector.update({
+                email,
+                name,
+                phone,
+                baseSalary,
+                commissionRate,
+                status
+            });
+
+            // Remove password hash from response
+            const collectorResponse = collector.toJSON();
+            delete collectorResponse.passwordHash;
+
+            res.json({
+                success: true,
+                message: 'Collector updated successfully',
+                data: collectorResponse
+            });
+        } catch (error) {
+            console.error('Update collector error:', error);
+            res.status(500).json({ success: false, error: 'Internal server error' });
+        }
+    }
+);
+
+// @route   DELETE /api/v1/users/collectors/:id
+// @desc    Delete a collector
+router.delete('/collectors/:id', async (req, res) => {
+    try {
+        const collector = await User.findOne({
+            where: {
+                id: req.params.id,
+                role: 'collector',
+                organizationId: req.user.organizationId
+            }
+        });
+
+        if (!collector) {
+            return res.status(404).json({ success: false, error: 'Collector not found' });
+        }
+
+        await collector.destroy();
+
+        res.json({
+            success: true,
+            message: 'Collector deleted successfully'
+        });
+    } catch (error) {
+        console.error('Delete collector error:', error);
+        res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
 export default router;

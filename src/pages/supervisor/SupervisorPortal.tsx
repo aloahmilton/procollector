@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { TrendingUp, AlertCircle, CheckCircle2, Clock, Users } from 'lucide-react';
+import { TrendingUp, AlertCircle, CheckCircle2, Clock, Users, User } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 type Collector = { id: string; name: string; collected: string; clients: number; status: 'Active' | 'Idle' | 'Offline'; lastUpdate: string; zone: string };
@@ -28,8 +28,8 @@ export function SupervisorPortal() {
                     <p className="text-sm text-brand-dark/60 mt-1">Real-time field collector monitoring</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white p-4 rounded-2xl shadow">
-                    <div className="h-8 w-8 rounded-xl bg-brand-green/20 flex items-center justify-center">
-                        <TrendingUp className="h-4 w-4" />
+                    <div className="h-8 w-8 rounded-xl bg-brand-slate-100 flex items-center justify-center">
+                        <TrendingUp className="h-4 w-4 text-brand-slate-600" />
                     </div>
                     <div>
                         <div className="text-[9px] font-black text-brand-dark/50 uppercase">Today Total</div>
@@ -65,7 +65,7 @@ export function SupervisorPortal() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-sm font-black flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-brand-green" /> Active Collectors
+                                    <Users className="h-4 w-4 text-brand-slate-600" /> Active Collectors
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -77,7 +77,7 @@ export function SupervisorPortal() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-sm font-black flex items-center gap-2">
-                                    <TrendingUp className="h-4 w-4 text-brand-green" /> Total Collected
+                                    <TrendingUp className="h-4 w-4 text-brand-slate-600" /> Total Collected
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
@@ -108,7 +108,7 @@ export function SupervisorPortal() {
                                 {mockCollectors.map((c) => (
                                     <div key={c.id} className="flex items-center justify-between pb-4 border-b border-brand-dark/5 last:border-b-0 last:pb-0">
                                         <div className="flex items-center gap-3 flex-1">
-                                            <div className="h-10 w-10 rounded-xl bg-brand-green/20 flex items-center justify-center text-[10px] font-black">
+                                            <div className="h-10 w-10 rounded-xl bg-brand-slate-100 flex items-center justify-center text-[10px] font-black text-brand-slate-600">
                                                 {c.name.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div className="flex-1">
@@ -117,10 +117,10 @@ export function SupervisorPortal() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-sm font-black text-brand-green italic">{c.collected}</div>
+                                            <div className="text-sm font-black text-brand-slate-600 italic">{c.collected}</div>
                                             <div className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest mt-1 px-2 py-0.5 rounded",
-                                                c.status === 'Active' ? "bg-brand-green text-brand-dark" :
+                                                c.status === 'Active' ? "bg-brand-slate-100 text-brand-slate-700" :
                                                 c.status === 'Idle' ? "bg-brand-dustGold text-brand-dark" :
                                                 "bg-gray-200 text-gray-700"
                                             )}>
@@ -141,10 +141,10 @@ export function SupervisorPortal() {
                     {!selectedCollector ? (
                         <div className="grid gap-4">
                             {mockCollectors.map((c) => (
-                                <Card key={c.id} className="hover:border-brand-green transition-all cursor-pointer" onClick={() => setSelectedCollector(c)}>
+                                <Card key={c.id} className="hover:border-brand-slate-300 transition-all cursor-pointer" onClick={() => setSelectedCollector(c)}>
                                     <CardContent className="p-6 flex items-center justify-between">
                                         <div className="flex items-center gap-4 flex-1">
-                                            <div className="h-14 w-14 rounded-xl bg-brand-green/20 flex items-center justify-center text-[10px] font-black">
+                                            <div className="h-14 w-14 rounded-xl bg-brand-slate-100 flex items-center justify-center text-[10px] font-black text-brand-slate-600">
                                                 {c.name.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div>
@@ -156,10 +156,10 @@ export function SupervisorPortal() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-2xl font-black text-brand-green italic">{c.collected}</div>
+                                            <div className="text-2xl font-black text-brand-slate-600 italic">{c.collected}</div>
                                             <div className={cn(
                                                 "text-[10px] font-black uppercase tracking-widest mt-1 px-2 py-0.5 rounded inline-block",
-                                                c.status === 'Active' ? "bg-brand-green text-brand-dark" :
+                                                c.status === 'Active' ? "bg-brand-slate-100 text-brand-slate-700" :
                                                 c.status === 'Idle' ? "bg-brand-dustGold text-brand-dark" :
                                                 "bg-gray-200 text-gray-700"
                                             )}>
@@ -191,7 +191,7 @@ export function SupervisorPortal() {
                                         </div>
                                         <div className="p-4 bg-brand-dustGold rounded-xl">
                                             <div className="text-[10px] font-black text-brand-dark/50 uppercase">Collected Today</div>
-                                            <div className="text-xl font-black text-brand-green mt-1 italic">{selectedCollector.collected}</div>
+                                            <div className="text-xl font-black text-brand-slate-600 mt-1 italic">{selectedCollector.collected}</div>
                                         </div>
                                         <div className="p-4 bg-brand-dustGold rounded-xl">
                                             <div className="text-[10px] font-black text-brand-dark/50 uppercase">Clients</div>
@@ -236,8 +236,8 @@ export function SupervisorPortal() {
                                 </div>
                             </div>
 
-                            <div className="p-4 border-l-4 border-brand-green bg-brand-green/10 rounded flex items-start gap-3">
-                                <CheckCircle2 className="h-5 w-5 text-brand-green mt-0.5 shrink-0" />
+                            <div className="p-4 border-l-4 border-brand-slate-400 bg-brand-slate-50 rounded flex items-start gap-3">
+                                <CheckCircle2 className="h-5 w-5 text-brand-slate-600 mt-0.5 shrink-0" />
                                 <div>
                                     <div className="font-black text-sm text-brand-dark">Performance Alert</div>
                                     <div className="text-xs text-brand-dark/60 mt-1">Jean Dupont exceeded daily target (FCFA 45K vs 40K goal)</div>

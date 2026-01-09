@@ -55,7 +55,7 @@ export default function CollectorReports() {
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-sm font-medium text-gray-500 mb-1">Success Rate</h3>
-          <p className="text-2xl font-bold text-green-600">{performanceStats.successRate}</p>
+          <p className="text-2xl font-bold text-brand-slate-600">{performanceStats.successRate}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-sm font-medium text-gray-500 mb-1">Total Amount</h3>

@@ -14,14 +14,14 @@ export function Header() {
         navigate('/');
     };
     return (
-        <header className="h-16 border-b border-brand-dark/10 flex items-center justify-between px-8 sticky top-0 bg-brand-green z-10 shadow-sm">
+        <header className="h-16 border-b border-brand-dark/10 flex items-center justify-between px-8 sticky top-0 bg-brand-dark z-10 shadow-sm">
             <div className="flex items-center gap-4 flex-1">
                 <div className="relative w-96 hidden md:block">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-dark/50" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-slate-400" />
                     <input
                         type="text"
                         placeholder="Search for agents, transactions..."
-                        className="w-full pl-10 pr-4 py-2 bg-brand-dark/5 border border-brand-dark/10 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-dark/10 text-brand-dark placeholder:text-brand-dark/40 font-bold"
+                        className="w-full pl-10 pr-4 py-2 bg-white border border-brand-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-slate-400 focus:border-brand-slate-400 text-brand-dark placeholder:text-brand-slate-400"
                     />
                 </div>
             </div>
@@ -36,7 +36,7 @@ export function Header() {
                 <div className="relative">
                     <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 relative">
                         <Bell className="h-4 w-4" />
-                        <span className="absolute top-2 right-2.5 h-1.5 w-1.5 bg-rose-600 rounded-full border-2 border-brand-green"></span>
+                        <span className="absolute top-2 right-2.5 h-1.5 w-1.5 bg-rose-600 rounded-full border-2 border-brand-dark"></span>
                     </Button>
                 </div>
                 <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
@@ -47,7 +47,7 @@ export function Header() {
                     </div>
                     <button 
                         onClick={() => setShowLogout(!showLogout)}
-                        className="h-9 w-9 rounded-full bg-brand-dark font-black text-brand-green flex items-center justify-center cursor-pointer hover:bg-brand-dark/90 transition-colors"
+                        className="h-9 w-9 rounded-full bg-brand-slate-100 font-black text-brand-dark flex items-center justify-center cursor-pointer hover:bg-brand-slate-200 transition-colors"
                     >
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </button>

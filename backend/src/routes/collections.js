@@ -319,4 +319,101 @@ router.patch('/:id/reject',
     }
 );
 
+/**
+ * @route   GET /api/v1/collections/stats
+ * @desc    Get collection statistics for dashboards
+ * @access  Private
+ */
+router.get('/stats', async (req, res) => {
+    try {
+        const organizationId = req.organizationId;
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
+
+        // Today's collections
+        const todayCollections = await Collection.sum('amount', {
+            where: {
+                organizationId,
+                createdAt: { [Op.gte]: startOfDay },
+                status: 'verified'
+            }
+        });
+
+        // Monthly collections
+        const monthlyCollections = await Collection.sum('amount', {
+            where: {
+                organizationId,
+                createdAt: { [Op.gte]: startOfMonth },
+                status: 'verified'
+            }
+        });
+
+        // Total collections (year)
+        const yearlyCollections = await Collection.sum('amount', {
+            where: {
+                organizationId,
+                createdAt: { [Op.gte]: startOfYear },
+                status: 'verified'
+            }
+        });
+
+        // Active collectors count
+        const activeCollectors = await User.count({
+            where: {
+                organizationId,
+                role: 'collector',
+                status: 'active'
+            }
+        });
+
+        // Pending collections
+        const pendingCollections = await Collection.count({
+            where: {
+                organizationId,
+                status: 'pending'
+            }
+        });
+
+        // Success rate (verified/total for last 30 days)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const [totalRecent, verifiedRecent] = await Promise.all([
+            Collection.count({
+                where: {
+                    organizationId,
+                    createdAt: { [Op.gte]: thirtyDaysAgo }
+                }
+            }),
+            Collection.count({
+                where: {
+                    organizationId,
+                    createdAt: { [Op.gte]: thirtyDaysAgo },
+                    status: 'verified'
+                }
+            })
+        ]);
+
+        const successRate = totalRecent > 0 ? ((verifiedRecent / totalRecent) * 100).toFixed(1) : '0';
+
+        res.json({
+            success: true,
+            data: {
+                todayCollections: todayCollections || 0,
+                monthlyCollections: monthlyCollections || 0,
+                yearlyCollections: yearlyCollections || 0,
+                activeCollectors,
+                pendingCollections,
+                successRate: `${successRate}%`
+            }
+        });
+    } catch (error) {
+        console.error('Stats error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch statistics'
+        });
+    }
+});
+
 export default router;
