@@ -26,23 +26,20 @@ export default function Organizations() {
   const fetchOrganizations = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('procollector_auth_token');
-      const response = await fetch('/api/v1/organizations', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setOrganizations(data.data.organizations);
+      setError(null);
+      
+      const apiClient = (await import('../../lib/api')).apiClient;
+      const result = await apiClient.get<any>('/organizations');
+      
+      if (result.success && result.data) {
+        const data = result.data as any;
+        setOrganizations(data.organizations || data || []);
       } else {
-        setError(data.error || 'Failed to load organizations');
+        setError(result.error || 'Failed to load organizations');
       }
     } catch (err) {
       console.error('Fetch organizations error:', err);
-      setError('Network error. Please try again.');
+      setError('Network error. Please ensure the backend server is running.');
     } finally {
       setLoading(false);
     }

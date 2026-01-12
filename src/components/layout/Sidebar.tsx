@@ -25,20 +25,23 @@ import { Button } from '../ui/Button';
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { config } from '../../lib/config';
 
 interface SidebarProps {
     className?: string;
 }
 
+const getAdminNavItems = () => [
+    { icon: Building2, label: 'System Admin', to: config.getAdminPath() },
+    { icon: Users, label: 'Organizations', to: config.getAdminPath('organizations') },
+    { icon: FileText, label: 'Collections', to: config.getAdminPath('collections') },
+    { icon: PiggyBank, label: 'CSV Import', to: config.getAdminPath('csv-import') },
+    { icon: TrendingUp, label: 'Reports', to: config.getAdminPath('reports') },
+    { icon: Settings, label: 'Settings', to: '/dashboard/settings' },
+];
+
 const navItemsMap = {
-    admin: [
-        { icon: Building2, label: 'System Admin', to: '/admin' },
-        { icon: Users, label: 'Organizations', to: '/admin/organizations' },
-        { icon: FileText, label: 'Collections', to: '/admin/collections' },
-        { icon: PiggyBank, label: 'CSV Import', to: '/admin/csv-import' },
-        { icon: TrendingUp, label: 'Reports', to: '/admin/reports' },
-        { icon: Settings, label: 'Settings', to: '/dashboard/settings' },
-    ],
+    admin: getAdminNavItems(),
     organization: [
         { icon: LayoutDashboard, label: 'Org Dashboard', to: '/organization' },
         { icon: Building2, label: 'Branches', to: '/organization/branches' },

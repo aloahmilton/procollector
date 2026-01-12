@@ -1,17 +1,62 @@
-import { Filter, CheckCircle2, AlertCircle, Clock, FileDown, FileSpreadsheet } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Filter, CheckCircle2, AlertCircle, Clock, FileDown, FileSpreadsheet, Loader2 } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 
-const mockCollections = [
-    { id: '1', agent: 'Jean Dupont', amount: 'FCFA 45,000', method: 'Mobile Money', taxType: 'Market Fee', date: '2025-12-20 10:30', status: 'Verified' },
-    { id: '2', agent: 'Marie Kline', amount: 'FCFA 12,000', method: 'Cash', taxType: 'Parking', date: '2025-12-20 10:15', status: 'Pending' },
-    { id: '3', agent: 'Jean Dupont', amount: 'FCFA 8,500', method: 'Cash', taxType: 'Waste Col.', date: '2025-12-20 09:50', status: 'Verified' },
-    { id: '4', agent: 'Sarah Ngono', amount: 'FCFA 125,000', method: 'Card', taxType: 'Licensing', date: '2025-12-20 09:12', status: 'Flagged' },
-    { id: '5', agent: 'Marie Kline', amount: 'FCFA 3,000', method: 'Mobile Money', taxType: 'Market Fee', date: '2025-12-20 08:45', status: 'Verified' },
-];
+interface Collection {
+    id: string;
+    agent: string;
+    amount: string;
+    method: string;
+    taxType: string;
+    date: string;
+    status: 'Verified' | 'Pending' | 'Flagged';
+}
 
 export function Collections() {
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchCollections();
+    }, []);
+
+    const fetchCollections = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const apiClient = (await import('../../lib/api')).apiClient;
+            const result = await apiClient.get<any>('/collections');
+            
+            if (result.success && result.data) {
+                const data = result.data as any;
+                // Transform API data to match component format
+                const transformed = (data.collections || data).map((col: any) => ({
+                    id: col.id || col._id || String(Math.random()),
+                    agent: col.collector?.name || col.agent || 'Unknown',
+                    amount: `FCFA ${Number(col.amount || 0).toLocaleString()}`,
+                    method: col.paymentMethod || col.method || 'Unknown',
+                    taxType: col.taxType || col.type || 'General',
+                    date: col.createdAt ? new Date(col.createdAt).toLocaleString() : new Date().toLocaleString(),
+                    status: col.status === 'verified' ? 'Verified' : col.status === 'pending' ? 'Pending' : 'Flagged'
+                }));
+                setCollections(transformed);
+            } else {
+                // Fallback to empty array on error
+                setCollections([]);
+                setError(result.error || 'Failed to load collections');
+            }
+        } catch (err) {
+            console.error('Fetch collections error:', err);
+            setCollections([]);
+            setError('Network error. Please ensure the backend server is running.');
+        } finally {
+            setLoading(false);
+        }
+    };
     const handleExportPDF = async () => {
         try {
             const token = localStorage.getItem('procollector_auth_token');
@@ -104,7 +149,29 @@ export function Collections() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-brand-dark/5">
-                            {mockCollections.map((log) => (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                        <Loader2 className="h-8 w-8 animate-spin text-brand-dark mx-auto mb-2" />
+                                        <p className="text-sm text-brand-dark/60">Loading collections...</p>
+                                    </td>
+                                </tr>
+                            ) : error ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-12 text-center">
+                                        <AlertCircle className="h-8 w-8 text-rose-500 mx-auto mb-2" />
+                                        <p className="text-sm text-rose-600 mb-4">{error}</p>
+                                        <Button onClick={fetchCollections} variant="outline" size="sm">Retry</Button>
+                                    </td>
+                                </tr>
+                            ) : collections.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-12 text-center text-brand-dark/40">
+                                        No collections found
+                                    </td>
+                                </tr>
+                            ) : (
+                                collections.map((log) => (
                                 <tr key={log.id} className="hover:bg-brand-dark/5 transition-colors group">
                                     <td className="px-6 py-5">
                                         <div className="flex items-center gap-3">
@@ -136,7 +203,8 @@ export function Collections() {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ))
+                            )}
                         </tbody>
                     </table>
                 </div>

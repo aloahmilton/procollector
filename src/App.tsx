@@ -3,6 +3,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { config } from './lib/config';
 
 // Dashboard Pages
 import { Overview } from './pages/dashboard/Overview.tsx';
@@ -104,8 +105,8 @@ function App() {
           </Route>
 
 
-          {/* System Admin Portal */}
-          <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><DashboardLayout /></ProtectedRoute>}>
+          {/* System Admin Portal - Configurable slug via VITE_ADMIN_SLUG */}
+          <Route path={config.getAdminPath()} element={<ProtectedRoute requiredRole="admin"><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<ProtectedRoute requiredRole="admin"><GlobalOverview /></ProtectedRoute>} />
             <Route path="csv-import" element={<ProtectedRoute requiredRole="admin"><CSVImport /></ProtectedRoute>} />
             <Route path="organizations" element={<ProtectedRoute requiredRole="admin"><Organizations /></ProtectedRoute>} />

@@ -17,22 +17,19 @@ export function GlobalOverview() {
     const fetchDashboardData = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/v1/dashboard/admin', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            const result = await response.json();
-
-            if (result.success) {
+            setError(null);
+            
+            const apiClient = (await import('../../lib/api')).apiClient;
+            const result = await apiClient.get<any>('/dashboard/admin');
+            
+            if (result.success && result.data) {
                 setData(result.data);
             } else {
                 setError(result.error || 'Failed to load dashboard data');
             }
         } catch (err) {
             console.error('Dashboard fetch error:', err);
-            setError('Network error. Please try again.');
+            setError('Network error. Please ensure the backend server is running on port 5000.');
         } finally {
             setLoading(false);
         }

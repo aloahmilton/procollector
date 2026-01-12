@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ShieldCheck, ArrowLeft, User, Users, Eye, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
+import { config } from "../../lib/config";
 
 export function Login() {
     const [selectedPortal, setSelectedPortal] = useState<string | null>(null);
@@ -15,6 +16,7 @@ export function Login() {
     // Map roles to production routes
     const getProductionRoute = (role: string): string => {
         const productionRoutes: { [key: string]: string } = {
+            'admin': config.getAdminPath(),
             'organization': '/organization',
             'manager': '/manager',
             'collector': '/collector',

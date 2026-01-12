@@ -32,36 +32,28 @@ export function CSVImport() {
 
             // Validate with backend
             try {
-                const token = localStorage.getItem('procollector_auth_token');
+                const apiClient = (await import('../../lib/api')).apiClient;
                 const type = parsed.headers.map(h => h.toLowerCase()).includes('client_phone') ? 'collections' : 'clients';
 
-                const response = await fetch('/api/v1/csv-import/validate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        csvData: text,
-                        type
-                    })
+                const result = await apiClient.post('/csv-import/validate', {
+                    csvData: text,
+                    type
                 });
 
-                const data = await response.json();
-
-                if (response.ok && data.success) {
+                if (result.success && result.data) {
+                    const data = result.data as any;
                     const errs: string[] = [];
-                    if (data.data.headers.missing.length > 0) {
-                        errs.push(`Missing required columns: ${data.data.headers.missing.join(', ')}`);
+                    if (data.headers?.missing?.length > 0) {
+                        errs.push(`Missing required columns: ${data.headers.missing.join(', ')}`);
                     }
-                    if (data.data.headers.invalid.length > 0) {
-                        errs.push(`Invalid columns: ${data.data.headers.invalid.join(', ')}`);
+                    if (data.headers?.invalid?.length > 0) {
+                        errs.push(`Invalid columns: ${data.headers.invalid.join(', ')}`);
                     }
 
                     setErrors(errs);
                     setPreview(parsed);
                 } else {
-                    setErrors([data.error || 'Validation failed']);
+                    setErrors([result.error || 'Validation failed']);
                 }
             } catch (error) {
                 console.error('Validation error:', error);
@@ -78,29 +70,22 @@ export function CSVImport() {
         try {
             setMessage('Applying migration...');
 
-            const token = localStorage.getItem('procollector_auth_token');
-            const endpoint = preview.headers.includes('client_phone') ? '/api/v1/csv-import/collections' : '/api/v1/csv-import/clients';
+            const apiClient = (await import('../../lib/api')).apiClient;
+            const endpoint = preview.headers.includes('client_phone') ? '/csv-import/collections' : '/csv-import/clients';
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    csvData: originalCsvData,
-                    dryRun: false
-                })
+            const result = await apiClient.post(endpoint, {
+                csvData: originalCsvData,
+                dryRun: false
             });
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                setMessage(`Migration applied successfully. Records processed: ${data.data.results.successful}`);
+            if (result.success && result.data) {
+                const data = result.data as any;
+                setMessage(`Migration applied successfully. Records processed: ${data.results?.successful || 'N/A'}`);
                 setPreview(null);
                 setErrors([]);
+                setOriginalCsvData('');
             } else {
-                setMessage(`Migration failed: ${data.error || 'Unknown error'}`);
+                setMessage(`Migration failed: ${result.error || 'Unknown error'}`);
             }
         } catch (error) {
             console.error('Migration error:', error);
