@@ -1,7 +1,7 @@
 import express from 'express';
 import { Organization, User, Client, Collection } from '../models/index.js';
 import { authenticate } from '../middleware/auth.js';
-import { Op } from 'sequelize';
+
 
 const router = express.Router();
 

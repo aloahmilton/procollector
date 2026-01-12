@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Users, CreditCard, Wallet, Activity, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, CreditCard, Wallet, Activity } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DashboardStats {
   title: string;
@@ -22,7 +22,6 @@ interface Transaction {
 export function Overview() {
   const [stats, setStats] = useState<DashboardStats[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
@@ -75,19 +74,9 @@ export function Overview() {
         { id: 'TX-1002', agent: 'Marie Kline', client: 'Boutique Alpha', amount: '5,000', status: 'Pending', time: '15 min ago' },
         { id: 'TX-1003', agent: 'Paul Biya II', client: 'Transport Union', amount: '50,000', status: 'Verified', time: '1 hr ago' },
       ]);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Verified': return 'bg-green-100 text-green-700';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700';
-      case 'Rejected': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
-  };
 
   const iconMap = {
     'Total Revenue': Wallet,
@@ -96,103 +85,7 @@ export function Overview() {
     'Anomalies': Activity
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="text-gray-600 mt-2">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-4">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-          <p className="text-gray-600">Organization performance and recent activity</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {stats.map((stat, index) => {
-            const IconComponent = iconMap[stat.title] || Activity;
-            return (
-              <Card key={index}>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <IconComponent className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-gray-600">{stat.title}</p>
-                      <div className={`flex items-center gap-1 text-sm mt-1 ${
-                        stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.trend === 'up' ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
-                        {stat.change}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Recent Transactions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {transactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-medium text-gray-900">
-                      {transaction.agent.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{transaction.agent}</p>
-                      <p className="text-sm text-gray-600">{transaction.client}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-gray-900">FCFA {transaction.amount}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(transaction.status)}`}>
-                      {transaction.status}
-                    </span>
-                    <p className="text-xs text-gray-500 mt-1">{transaction.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gray-50 px-4 py-6 mt-8">
-        <div className="text-center">
-          <p className="text-xs text-gray-500 font-medium">
-            Powered by Altonixa Group Ltd • Performance Analytics
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-}
-
-    return (
         <div className="space-y-6">
             <div>
                 <h2 className="text-2xl font-semibold text-gray-900">Overview</h2>
@@ -287,7 +180,8 @@ export function Overview() {
                                     <span className={`text-xs px-2 py-1 rounded uppercase ${
                                         tx.status === 'Verified' ? 'bg-green-100 text-green-800' :
                                         tx.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-red-100 text-red-800'
+                                        tx.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                        'bg-gray-100 text-gray-800'
                                     }`}>
                                         {tx.status}
                                     </span>

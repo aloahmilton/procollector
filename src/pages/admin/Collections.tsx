@@ -55,16 +55,11 @@ export function Collections() {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.download = `collections_report_${new Date().toISOString().split('T')[0]}.xlsx`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
                 a.href = url;
+                a.download = `collections_report_${new Date().toISOString().split('T')[0]}.pdf`;
                 document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             } else {
                 console.error('Export failed');
@@ -147,15 +142,15 @@ export function Collections() {
                     </table>
                 </div>
             </Card>
-        </div>
 
-        {/* Footer */}
-        <footer className="border-t border-gray-200 bg-gray-50 px-4 py-6 mt-8">
-          <div className="text-center">
-            <p className="text-xs text-gray-500 font-medium">
-              Powered by Altonixa Group Ltd • System Audit
-            </p>
-          </div>
-        </footer>
+            {/* Footer */}
+            <footer className="border-t border-gray-200 bg-gray-50 px-4 py-6 mt-8">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 font-medium">
+                  Powered by Altonixa Group Ltd • System Audit
+                </p>
+              </div>
+            </footer>
+        </div>
     );
 }

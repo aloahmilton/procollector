@@ -24,7 +24,48 @@ export function HostelModule() {
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      // TODO: Implement real API call
+      const token = localStorage.getItem('procollector_auth_token');
+      const response = await fetch('/api/v1/hostel/rooms', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setRooms(data.data.rooms);
+      } else {
+        // Fallback mock data
+        setRooms([
+          {
+            id: 'A101',
+            type: 'Single',
+            capacity: 1,
+            occupied: 1,
+            status: 'occupied',
+            residents: ['John Doe']
+          },
+          {
+            id: 'B202',
+            type: 'Double',
+            capacity: 2,
+            occupied: 1,
+            status: 'occupied',
+            residents: ['Jane Smith']
+          },
+          {
+            id: 'C303',
+            type: 'Triple',
+            capacity: 3,
+            occupied: 0,
+            status: 'available',
+            residents: []
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Rooms fetch error:', error);
+      // Fallback mock data
       setRooms([
         {
           id: 'A101',
@@ -51,8 +92,6 @@ export function HostelModule() {
           residents: []
         }
       ]);
-    } catch (error) {
-      console.error('Rooms fetch error:', error);
     } finally {
       setLoading(false);
     }

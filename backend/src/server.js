@@ -3,8 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import sequelize, { testConnection } from './config/database.js';
-import { Organization, User, Client, Collection } from './models/index.js';
+import \{ supabase, testSupabaseConnection \} from './config/supabase.js';
+// Models are handled directly through Supabase client
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -102,7 +102,7 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
     try {
         // Test database connection
-        const isConnected = await testConnection();
+        const isConnected = await testSupabaseConnection();
 
         if (!isConnected) {
             console.error('❌ Failed to connect to database. Exiting...');

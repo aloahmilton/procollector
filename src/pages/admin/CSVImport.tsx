@@ -173,16 +173,16 @@ export function CSVImport() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
 
-        {/* Footer */}
-        <footer className="border-t border-gray-200 bg-gray-50 px-4 py-6 mt-8">
-          <div className="text-center">
-            <p className="text-xs text-gray-500 font-medium">
-              Powered by Altonixa Group Ltd • Data Migration
-            </p>
-          </div>
-        </footer>
+            {/* Footer */}
+            <footer className="border-t border-gray-200 bg-gray-50 px-4 py-6 mt-8">
+              <div className="text-center">
+                <p className="text-xs text-gray-500 font-medium">
+                  Powered by Altonixa Group Ltd • Data Migration
+                </p>
+              </div>
+            </footer>
+        </div>
     );
 }
 
