@@ -59,6 +59,8 @@ import { ReceiptVerification } from './pages/client/ReceiptVerification';
 // Manager Portal Pages
 import { SupervisorPortal } from './pages/manager/SupervisorPortal';
 import { Agents } from './pages/manager/Agents';
+import { Collectors } from './pages/manager/Collectors';
+import LiveMonitoring from './pages/manager/LiveMonitoring';
 
 
 
@@ -151,6 +153,8 @@ function App() {
           <Route path="/manager" element={<ProtectedRoute requiredRole="manager"><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<ProtectedRoute requiredRole="manager"><SupervisorPortal /></ProtectedRoute>} />
             <Route path="agents" element={<ProtectedRoute requiredRole="manager"><Agents /></ProtectedRoute>} />
+            <Route path="collectors" element={<ProtectedRoute requiredRole="manager"><Collectors /></ProtectedRoute>} />
+            <Route path="monitoring" element={<ProtectedRoute requiredRole="manager"><LiveMonitoring /></ProtectedRoute>} />
           </Route>
 
         </Routes>
