@@ -36,32 +36,30 @@ export function ClientPortal() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('procollector_auth_token');
-      const response = await fetch('/api/v1/client/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setDashboardData(data.data);
-        if (data.data.client) {
+      setError(null);
+      
+      const apiClient = (await import('../../lib/api')).apiClient;
+      const result = await apiClient.get<any>('/client/dashboard');
+      
+      if (result.success && result.data) {
+        setDashboardData(result.data);
+        const data = result.data as any;
+        if (data.client) {
           setProfile({
-            name: data.data.client.name || 'N/A',
-            email: data.data.client.email || 'N/A',
-            phone: data.data.client.phone || 'N/A'
+            name: data.client.name || 'N/A',
+            email: data.client.email || 'N/A',
+            phone: data.client.phone || 'N/A'
           });
         }
-        if (data.data.paymentMethods) {
-          setPaymentMethods(data.data.paymentMethods);
+        if (data.paymentMethods) {
+          setPaymentMethods(data.paymentMethods);
         }
       } else {
-        setError(data.error || 'Failed to load dashboard');
+        setError(result.error || 'Failed to load dashboard');
       }
     } catch (err) {
       console.error('Dashboard fetch error:', err);
-      setError('Network error. Please try again.');
+      setError('Network error. Please ensure the backend server is running on port 5000.');
     } finally {
       setLoading(false);
     }

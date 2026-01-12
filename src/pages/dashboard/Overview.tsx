@@ -28,25 +28,16 @@ export function Overview() {
 
   const fetchDashboardData = async () => {
     try {
-      // setLoading is undefined, so remove or implement if loading state needed
-      const token = localStorage.getItem('procollector_auth_token');
-      const response = await fetch('/api/v1/dashboard/overview', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setStats(data.data.stats);
-        // TODO: Fetch recent transactions
-        setTransactions([
-          { id: 'TX-1001', agent: 'Jean Dupont', client: 'Marché Central C3', amount: '15,000', status: 'Verified', time: '2 min ago' },
-          { id: 'TX-1002', agent: 'Marie Kline', client: 'Boutique Alpha', amount: '5,000', status: 'Pending', time: '15 min ago' },
-          { id: 'TX-1003', agent: 'Paul Biya II', client: 'Transport Union', amount: '50,000', status: 'Verified', time: '1 hr ago' },
-        ]);
+      const apiClient = (await import('../../lib/api')).apiClient;
+      const result = await apiClient.get<any>('/dashboard/overview');
+      
+      if (result.success && result.data) {
+        const data = result.data as any;
+        setStats(data.stats || []);
+        setTransactions(data.recentTransactions || []);
       } else {
-        // Fallback mock data
+        // Fallback mock data on error
+        console.warn('Dashboard API error, using fallback data:', result.error);
         setStats([
           { title: 'Total Revenue', value: 'FCFA 2.4M', change: '+12.5%', trend: 'up' },
           { title: 'Active Agents', value: '47', change: '+3', trend: 'up' },
@@ -61,7 +52,7 @@ export function Overview() {
       }
     } catch (error) {
       console.error('Dashboard fetch error:', error);
-      // Fallback mock data
+      // Fallback mock data on network error
       setStats([
         { title: 'Total Revenue', value: 'FCFA 2.4M', change: '+12.5%', trend: 'up' },
         { title: 'Active Agents', value: '47', change: '+3', trend: 'up' },
