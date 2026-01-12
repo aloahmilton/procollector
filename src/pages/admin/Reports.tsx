@@ -38,13 +38,15 @@ export default function Reports() {
 
   const handleExport = async () => {
     try {
-      const apiClient = (await import('../../lib/api')).apiClient;
-      const result = await apiClient.get(`/admin/reports/export?type=${reportType}&range=${dateRange}`, {
-        responseType: 'blob'
-      } as any);
+      const token = localStorage.getItem('procollector_auth_token');
+      const response = await fetch(`/api/v1/admin/reports/export?type=${reportType}&range=${dateRange}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (result.success && result.data) {
-        const blob = new Blob([result.data], { type: 'application/pdf' });
+      if (response.ok) {
+        const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -53,6 +55,8 @@ export default function Reports() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+      } else {
+        alert('Failed to export report. Please try again.');
       }
     } catch (err) {
       console.error('Export error:', err);

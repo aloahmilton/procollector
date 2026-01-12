@@ -65,9 +65,36 @@ export default function FinancialConfig() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-dark" />
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Financial Configuration</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Financial Configuration</h1>
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Configuration'}
+        </Button>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+          <AlertCircle className="h-5 w-5 text-red-600" />
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          <p className="text-sm text-green-600">Configuration saved successfully!</p>
+        </div>
+      )}
       
       <div className="space-y-6">
         {/* Basic Settings */}
@@ -161,15 +188,6 @@ export default function FinancialConfig() {
           </div>
         </div>
 
-        {/* Save Changes */}
-        <div className="flex justify-end space-x-4">
-          <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
-            Cancel
-          </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            Save Changes
-          </button>
-        </div>
       </div>
     </div>
   );
